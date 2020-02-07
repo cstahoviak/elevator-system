@@ -22,8 +22,14 @@ class System {
 
   public:
     System();
+    void OnInit();
+
+    // getter functions
+    std::vector<std::string> GetFloors() { return _floors; } 
+
     bool AddElevator(std::string name, double payload);   // true -> request successful
-                                                // false -> request failed
+                                                          // false -> request failed
+    // void SetElevatorSystemHandle();
 
 
 };

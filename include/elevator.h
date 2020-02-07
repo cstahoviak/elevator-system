@@ -21,14 +21,22 @@ class Elevator {
     System* _system;  // non-owning reference to the System object
 
   public:
-    Elevator(std::string id, double payload) : _id(id), _maxLoad(payload) {}
+    Elevator(std::string id, double payload, System* system) : _id(id),
+                                                              _maxLoad(payload),
+                                                              _system(system) {}
     std::string GetStatus();
     bool CallToFloor(std::string floor);
-    bool Enter();
-    bool Exit();
+    void MoveElevator();
     bool Continue();
 
-    void MoveElevator();
+    // getter/ setter functions
+    std::string GetID() {return _id; }
+    double GetMaxLoad() { return _maxLoad; }
+    double GetCurrentLoad() { return _currentLoad; }
+
+    // Bonus
+    bool Enter();   // will likely need to set _currentLoad
+    bool Exit();    
 };
 
 #endif

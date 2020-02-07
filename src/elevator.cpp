@@ -6,17 +6,19 @@
 #include <chrono>     // std::chrono
 
 #include "elevator.h"
+#include "system.h"
 
 std::string Elevator::GetStatus() {
   if( _currentFloor.compare(_destinationFloor) == 0 ) {
     // elevator at its destination floor - not in motion
-    return "stationary " + _id;
+    return "stationary " + _id + "\n";
   }
   else {
-    int idx = 0;
+    int idx     = 0;
     int current = 0;
-    int dest = 0;
-    for(auto it = _system->_floors.begin(); it != _system->_floors.begin(), ++it) {
+    int dest    = 0;
+
+    for(auto it = _system->GetFloors().begin(); it != _system->GetFloors().end(); ++it) {
       if( (*it).compare(_currentFloor)) {
         current = idx;
       }
@@ -39,11 +41,12 @@ std::string Elevator::GetStatus() {
 }
 
 bool Elevator::CallToFloor( std::string floor ) {
-  if( std::find(_system->_floors.begin(), _system->_floors.end(), floor) == _system->_floors.end()) {
-    std::cout << "failed to call " << _id << " to floor " << floor << std::endl;
+  if( std::find(_system->GetFloors().begin(), _system->GetFloors().end(), floor) == _system->GetFloors().end()) {
+    std::cout << "Cannot call " << _id << " to non-existent floor " << floor << std::endl;
     return false;
   }
   else {
+    std::cout << "Moving elevator " << _id << " to floor " << floor << std::endl;
     _destinationFloor = floor;
     MoveElevator();   // move elevator to the destination floor
     return true;
@@ -51,8 +54,8 @@ bool Elevator::CallToFloor( std::string floor ) {
 }
 
 void Elevator::MoveElevator() {
-  auto current = std::find(_system->_floors.begin(), _system->_floors.end(), _currentFloor);
-  auto dest = std::find(_system->_floors.begin(), _system->_floors.end(), _destinationFloor);
+  auto current = std::find(_system->GetFloors().begin(), _system->GetFloors().end(), _currentFloor);
+  auto dest = std::find(_system->GetFloors().begin(), _system->GetFloors().end(), _destinationFloor);
 
   size_t dist = std::distance(current, dest);
 
