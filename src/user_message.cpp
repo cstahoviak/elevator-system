@@ -27,8 +27,7 @@ bool UserMessage::IsValid() {
   ParseUserMessage();
 
   // is a valid base command issued?
-  if( std::find(_valid_cmds.begin(), _valid_cmds.end(), _cmd) == _valid_cmds.end() ) {
-    // base command not a valid command
+  if( ResolveCommand() == _invalid ) {
     return false;
   }
   // if adding a new elevator to an empty vector of elevators
