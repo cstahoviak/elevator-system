@@ -4,7 +4,7 @@
 
 int main() {
 
-  System system;
+  System system;    // instantiate elevator system
 
   return 0;
 }

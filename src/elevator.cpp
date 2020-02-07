@@ -7,6 +7,36 @@
 
 #include "elevator.h"
 #include "system.h"
+#include "user_message.h"
+
+void Elevator::ElevatorTaskManager() {
+  // de-queue all messages in elevator task queue
+  while( !_task_queue.empty() ) {
+    // get next message off the top of the queue
+    UserMessage task = _task_queue.front();
+
+    switch( task.ResolveCommand() ) {
+
+      // STOPPED HERE: deal eith enum tomorrow
+
+      case UserMessage::ValidCommands::_status: { GetStatus(); }
+      case UserMessage::ValidCommands::_continue: { /* do nothing */ }
+      case UserMessage::ValidCommands::_call: { MoveElevator(); }
+      case UserMessage::ValidCommands::_enter: {
+        std::cout << "Ignoring ENTER elevator command" << std::endl;
+       }
+      case UserMessage::ValidCommands::_exit: {
+        std::cout << "Ignoring EXIT elevator command" << std::endl;
+       }
+      default: {
+        std::cout << "ERROR: SHOULD NOT GET HERE" << std::endl;
+       }
+    }
+
+    // remove element from front of queue
+    _task_queue.pop();
+  }
+}
 
 std::string Elevator::GetStatus() {
   if( _currentFloor.compare(_destinationFloor) == 0 ) {
@@ -42,6 +72,7 @@ std::string Elevator::GetStatus() {
 
 bool Elevator::CallToFloor( std::string floor ) {
   if( std::find(_system->GetFloors().begin(), _system->GetFloors().end(), floor) == _system->GetFloors().end()) {
+    // don't think it should be possible to get here
     std::cout << "Cannot call " << _id << " to non-existent floor " << floor << std::endl;
     return false;
   }
