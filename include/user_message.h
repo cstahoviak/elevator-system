@@ -13,16 +13,9 @@ class UserMessage {
     std::string _eid{""};     // elevator ID
     std::string _value{""};   // value associated with specific command
 
-    // std::vector<std::string> _valid_cmds {
-    //   "status",
-    //   "continue",
-    //   "add",        // add-elevator
-    //   "call"        // call-elevator
-    //   "enter"       // enter-elevator
-    //   "exit"        // exit-elevator
-    // };
-
     System* _system;    // non-owning reference to System object
+
+    void ParseUserMessage();
 
   public:
     enum ValidCommands {
@@ -36,12 +29,13 @@ class UserMessage {
     };
 
     UserMessage(std::string msg, System* system) : _msg(msg), _system(system) {}
+    void Test();
 
     // getter / setter functions
-    // std::vector<std::string> GetValidCmds() { return _valid_cmds; }
-    std::string GetEID() { return _eid; }
+    std::string GetMsg() const { return _msg; }
+    std::string GetEID() const { return _eid; }
+    std::string GetValue() const { return _value; }
 
-    void ParseUserMessage();
     ValidCommands ResolveCommand();
     bool IsValid();
 };

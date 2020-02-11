@@ -11,37 +11,53 @@
 
 void Elevator::ElevatorTaskManager() {
   // de-queue all messages in elevator task queue
-  while( !_task_queue.empty() ) {
-    // get next message off the top of the queue
-    UserMessage task = _task_queue.front();
+  while( !_tasks.empty() ) {
+    // get a reference to the next message off the top of the queue
+    UserMessage &task = _tasks.front();
+
+    UserMessage::ValidCommands cmd = task.ResolveCommand();
 
     switch( task.ResolveCommand() ) {
 
-      // STOPPED HERE: deal eith enum tomorrow
+      // STOPPED HERE: switch statement executing more than one case??
 
-      case UserMessage::ValidCommands::_status: { GetStatus(); }
-      case UserMessage::ValidCommands::_continue: { /* do nothing */ }
-      case UserMessage::ValidCommands::_call: { MoveElevator(); }
-      case UserMessage::ValidCommands::_enter: {
+      case UserMessage::_status: {
+        GetStatus();
+        break;
+      }
+
+      case UserMessage::_continue: { /* do nothing */ break; }
+
+      case UserMessage::_call: {
+        CallToFloor( task.GetValue() );
+        break;
+      }
+      case UserMessage::_enter: {
         std::cout << "Ignoring ENTER elevator command" << std::endl;
-       }
-      case UserMessage::ValidCommands::_exit: {
+        break;
+      }
+
+      case UserMessage::_exit: {
         std::cout << "Ignoring EXIT elevator command" << std::endl;
-       }
+        break;
+      }
+
       default: {
         std::cout << "ERROR: SHOULD NOT GET HERE" << std::endl;
-       }
+        break;
+      }
     }
 
     // remove element from front of queue
-    _task_queue.pop();
+    _tasks.pop();
   }
 }
 
-std::string Elevator::GetStatus() {
+void Elevator::GetStatus() {
+
   if( _currentFloor.compare(_destinationFloor) == 0 ) {
     // elevator at its destination floor - not in motion
-    return "stationary " + _id + "\n";
+    std::cout << "stationary " + _id << std::endl;
   }
   else {
     int idx     = 0;
@@ -59,42 +75,43 @@ std::string Elevator::GetStatus() {
     }
 
     if( (current - dest) > 0) {
-      return "moving-up " + _currentFloor + " " + _id + " " +
-        std::to_string(_currentLoad) + "\n";
+      std::cout << _id + " moving-up " + _currentFloor + " " + _destinationFloor +
+        " " + std::to_string(_currentLoad) << std::endl;
     }
     else {
-      return "moving-down " + _currentFloor + " " + _id + " " +
-        std::to_string(_currentLoad) + "\n";
+      std::cout << _id + " moving-down " + _currentFloor + " " + _destinationFloor +
+        " " + std::to_string(_currentLoad) << std::endl;
     }
   }
 
 }
 
-bool Elevator::CallToFloor( std::string floor ) {
-  if( std::find(_system->GetFloors().begin(), _system->GetFloors().end(), floor) == _system->GetFloors().end()) {
-    // don't think it should be possible to get here
-    std::cout << "Cannot call " << _id << " to non-existent floor " << floor << std::endl;
-    return false;
-  }
-  else {
-    std::cout << "Moving elevator " << _id << " to floor " << floor << std::endl;
-    _destinationFloor = floor;
-    MoveElevator();   // move elevator to the destination floor
-    return true;
-  }
+void Elevator::CallToFloor( std::string floor ) {
+
+  std::cout << "Moving elevator " << _id << " to floor " << floor << std::endl;
+
+  _destinationFloor = floor;  // set destination floor
+
+  GetStatus();      // get current status
+  MoveElevator();   // move elevator to destination floor
+  GetStatus();      // get current status
 }
 
 void Elevator::MoveElevator() {
+
+  // NEXT: Print current floor as elevator is moving
+
   auto current = std::find(_system->GetFloors().begin(), _system->GetFloors().end(), _currentFloor);
   auto dest = std::find(_system->GetFloors().begin(), _system->GetFloors().end(), _destinationFloor);
 
   size_t dist = std::distance(current, dest);
 
   // it takes two seconds to traverse a single floor
-  for (size_t i=0; i <= dist; i++) {
-    // update current floor as elevator is moving
+  for (size_t i = 0; i <= dist; i++) {
+    // TODO: update current floor as elevator is moving
+    std::cout << _id << " <current floor here>" << std::endl;
 
-    std::this_thread::sleep_for(std::chrono::seconds(2));
+    std::this_thread::sleep_for(std::chrono::seconds(1));
   }
 
   // update elevators current location - might do this in loop instead

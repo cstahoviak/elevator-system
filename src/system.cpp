@@ -14,6 +14,18 @@ System::System() {
 void System::OnInit() {
   std::string user_msg{""}, cmd{""};
 
+  std::cout << "System::OnInit():" << std::endl;
+  
+  // std::cout << "\t_elevators:\t" << &_elevators << std::endl;
+
+  // auto begin = _elevators.begin();
+  // auto end = _elevators.end();
+
+  // std::cout << "\tbegin:\t" << &(*begin) << std::endl;
+  // std::cout << "\tend:\t" << &(*end) << std::endl;
+
+  // Test();
+
   // main loop
   while( true ) {
 
@@ -27,9 +39,11 @@ void System::OnInit() {
       stream >> cmd;    // pull first word off input stream
 
       if( cmd.compare("continue") != 0 ) {
-        _msg_queue.emplace( user_msg, this );   // calls UserMessage Constructor
+        _msgs.emplace( user_msg, this );   // calls UserMessage Constructor
       }
     }
+    cmd = "";   // reset input command
+
     // parse all incoming messages (up to "continue" statement )
     ParseMessageQueue();
 
@@ -42,23 +56,31 @@ void System::OnInit() {
 void System::ParseMessageQueue() {
 
   // de-queue all messages in system message queue
-  while( !_msg_queue.empty() ) {
+  while( !_msgs.empty() ) {
     // get next message off the top of the queue
-    UserMessage msg = _msg_queue.front();
+    UserMessage &msg = _msgs.front();
+    std::cout << "msg received: " << msg.GetMsg() << std::endl;
 
     // check to see if message syntax is valid
     if( msg.IsValid() ) {
+      std::cout << "message valid" << std::endl;
+
       // message syntax is valid - send message to elevator
       SendMessageToElevator(msg);
     }
+    else {
+      std::cout << "message invalid" << std::endl;
+    }
 
     // remove element from front of queue
-    _msg_queue.pop();
+    _msgs.pop();
   }
+  std::cout << "\n\n";
 }
 
 void System::SendMessageToElevator(UserMessage msg) {
-  for( auto it = _elevators.begin(); it != _elevators.end(); ++it ) {
+  
+  for( auto it = _elevators.begin(); it != _elevators.end(); it++ ) {
     if( (*it).GetID().compare( msg.GetEID() ) == 0 ) {
       (*it).AddTask( msg ); // send message / task to elevator
     }
@@ -66,35 +88,99 @@ void System::SendMessageToElevator(UserMessage msg) {
 }
 
 bool System::AddElevator(std::string name, double payload) {
-  
+
+  if( payload >= 0.0 ) {
+    _elevators.emplace_back(name, payload, this);
+    return true;
+  }
+  else {
+    std::cout << "Cannot add new elevator with negative max load" << std::endl;
+    return false;
+  }
+
   // all this below might not be necessary..
   // already accomplished by UserMessage::IsValid()
 
-  for( auto iter =_elevators.begin(); iter != _elevators.end(); ++iter ) {
-    if( (*iter).GetID().compare(name) == 0 ) {
-      // elevator with this name already exists - failed to add elevator to _elevators
-      std::cout << "Elevator " << name << " already exists with max payload "
-        << std::to_string( (*iter).GetMaxLoad() ) << " kgs" << std::endl;
-      return false;
-    }
-    else if( iter == _elevators.end() && payload >= 0.0 ) {
-      // reached end of _elevators vector and none with _id "name" found
-      _elevators.emplace_back(name, payload, this);
-      // SetElevatorSystemHandle();
-      return true;
-    }
-  }
+  // if( _elevators.empty() ) {
+  //   if( payload >= 0.0 ) {
+  //     _elevators.emplace_back(name, payload, this);
+  //     return true;
+  //   }
+  //   else {
+  //     return false;   // failed to add elevator - invalid paylod
+  //   }
+  // }
+  // else {
+  //   for( auto iter =_elevators.begin(); iter != _elevators.end(); ++iter ) {
+  //     if( (*iter).GetID().compare(name) == 0 ) {
+  //       // elevator with this name already exists - failed to add elevator to _elevators
+  //       std::cout << "Elevator " << name << " already exists with max payload "
+  //         << std::to_string( (*iter).GetMaxLoad() ) << " kgs" << std::endl;
+  //       return false;
+  //     }
+  //     else if( iter == _elevators.end() && payload >= 0.0 ) {
+  //       // reached end of _elevators vector and none with _id "name" found
+  //       _elevators.emplace_back(name, payload, this);
+  //       // SetElevatorSystemHandle();
+  //       return true;
+  //     }
+  //   }
+  // }
 }
 
 void System::SystemTaskManager() {
 
-  for( auto elevator : _elevators ) {
-    elevator.ElevatorTaskManager();
+  for( auto it = _elevators.begin(); it != _elevators.end(); it++ ) {
+    (*it).ElevatorTaskManager();
   }
 
 }
 
-// void System::SetElevatorSystemHandle() {
-//   auto it = _elevators.end();
-//   (*it)._system = this;
-// }
+void System::Test() {
+
+  std::cout << "\nSystem::Test()" << std::endl;
+
+  std::vector<std::string> names{"E1", "E2", "E3"};
+
+  int i = 0;
+  for( auto name : names ) {
+    _elevators.emplace_back(name, i*100.0, this);
+    i++;
+  }
+
+  /* RANGE-BASED FOR LOOPS:
+  * The range-based for loop creates an object of type Elevator as a
+  * place-holder for each element of _elevators. As _elevators is iterated
+  * through, that address of elevator never changes.
+  */
+
+  std::cout << "\trange-based for loop" << std:: endl;
+  for( auto elevator : _elevators ) {
+    std::cout << "\televator " << elevator.GetID() << " at\t"
+      << &elevator << std::endl;
+  }
+
+  auto begin = _elevators.begin();
+  auto end = _elevators.end();
+
+  std::cout << "\n\tbegin:\t" << &(*begin) << std::endl;
+  std::cout << "\tend:\t" << &(*end) << std::endl;
+
+  /* ITERATOR-BASED FOR LOOPS:
+  * The iterator based for loop uses an iterator object to loop through the
+  * **actual** elements of _elevators without creating a temporary Elevator
+  * object as in the range-based for loop case. In this case, the actual address
+  * of each element of _elevators is printed.
+  */
+
+  // Q: Why does end (see above) not match the address of the last Elevator ebject
+  //in  _elevators printed below?
+
+  std::cout << "\n\titerator for loop" << std::endl;
+  for( auto it = _elevators.begin(); it != _elevators.end(); it++) {
+    std::cout << "\televator " << (*it).GetID() << " at\t" << &(*it) << std::endl;
+  }
+
+  UserMessage msg("message", this);
+  msg.Test();
+}

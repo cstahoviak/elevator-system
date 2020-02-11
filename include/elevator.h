@@ -18,7 +18,7 @@ class Elevator {
     std::string _currentFloor{"B2"};      // all elevators start at the lowest floor by default
     std::string _destinationFloor{"B2"};
 
-    std::queue<UserMessage> _task_queue;
+    std::queue<UserMessage> _tasks;   // tasks assigned to this elevator
     bool _busy{false};                // elevator will continue to next task when not busy
 
     System* _system;  // non-owning reference to the System object
@@ -30,16 +30,18 @@ class Elevator {
 
     void ElevatorTaskManager();
 
-    std::string GetStatus();
-    bool CallToFloor(std::string floor);
+    void GetStatus();
+    void CallToFloor(std::string floor);
     void MoveElevator();
     bool Continue();
 
     // getter/ setter functions
-    std::string GetID() {return _id; }
-    double GetMaxLoad() { return _maxLoad; }
-    double GetCurrentLoad() { return _currentLoad; }
-    void AddTask(UserMessage msg) { _task_queue.push(msg); }
+    // NOTE: the "const" keyword indicates that the member function will NOT modify
+    // the object on which it's called
+    std::string GetID() const { return _id; }
+    double GetMaxLoad() const { return _maxLoad; }
+    double GetCurrentLoad() const { return _currentLoad; }
+    void AddTask(UserMessage msg) { _tasks.emplace(msg); }
 
     // Bonus
     bool Enter();   // will likely need to set _currentLoad
