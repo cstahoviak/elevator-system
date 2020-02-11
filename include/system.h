@@ -33,7 +33,6 @@ class System {
     void Test();
 
     // getter functions
-    // std::vector<std::string> GetFloors() const { return _floors; }
     const std::vector<std::string>& GetFloors() const { return _floors; }
     const std::vector<Elevator>& GetElevators() const { return _elevators; }
 

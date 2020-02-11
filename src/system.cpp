@@ -58,7 +58,7 @@ void System::ParseMessageQueue() {
   // de-queue all messages in system message queue
   while( !_msgs.empty() ) {
     // get next message off the top of the queue
-    UserMessage &msg = _msgs.front();
+    UserMessage& msg = _msgs.front();
     std::cout << "msg received: " << msg.GetMsg() << std::endl;
 
     // check to see if message syntax is valid
@@ -97,35 +97,6 @@ bool System::AddElevator(std::string name, double payload) {
     std::cout << "Cannot add new elevator with negative max load" << std::endl;
     return false;
   }
-
-  // all this below might not be necessary..
-  // already accomplished by UserMessage::IsValid()
-
-  // if( _elevators.empty() ) {
-  //   if( payload >= 0.0 ) {
-  //     _elevators.emplace_back(name, payload, this);
-  //     return true;
-  //   }
-  //   else {
-  //     return false;   // failed to add elevator - invalid paylod
-  //   }
-  // }
-  // else {
-  //   for( auto iter =_elevators.begin(); iter != _elevators.end(); ++iter ) {
-  //     if( (*iter).GetID().compare(name) == 0 ) {
-  //       // elevator with this name already exists - failed to add elevator to _elevators
-  //       std::cout << "Elevator " << name << " already exists with max payload "
-  //         << std::to_string( (*iter).GetMaxLoad() ) << " kgs" << std::endl;
-  //       return false;
-  //     }
-  //     else if( iter == _elevators.end() && payload >= 0.0 ) {
-  //       // reached end of _elevators vector and none with _id "name" found
-  //       _elevators.emplace_back(name, payload, this);
-  //       // SetElevatorSystemHandle();
-  //       return true;
-  //     }
-  //   }
-  // }
 }
 
 void System::SystemTaskManager() {

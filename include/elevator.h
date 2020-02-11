@@ -23,6 +23,14 @@ class Elevator {
 
     System* _system;  // non-owning reference to the System object
 
+    enum Status {
+      _stationary,
+      _up,
+      _down
+    };
+
+    Status _status{_stationary};
+
   public:
     Elevator(std::string id, double payload, System* system) : _id(id),
                                                               _maxLoad(payload),
@@ -30,6 +38,7 @@ class Elevator {
 
     void ElevatorTaskManager();
 
+    void UpdateStatus();
     void GetStatus();
     void CallToFloor(std::string floor);
     void MoveElevator();
