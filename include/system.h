@@ -24,9 +24,10 @@ class System {
       "P"     // penthouse
     };
 
+
     void ParseMessageQueue();                     // parse incoming user messages
-    void SendMessageToElevator(UserMessage msg);  // send valid messages to elevators
     void SystemTaskManager();                     // call ElevatorTaskManager() for each elevator
+    void SendMessageToElevator(UserMessage msg);  // send valid messages to elevators
 
   public:
     void Init();

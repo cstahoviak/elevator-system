@@ -30,7 +30,7 @@ void System::Init() {
     cmd = "";   // reset input command
     std::cout << "\n";
 
-    // parse all incoming messages (up to "continue" statement )
+    // parse all incoming messages (up to "continue" statement)
     ParseMessageQueue();
     std::cout << "\n";
 
@@ -51,8 +51,6 @@ void System::ParseMessageQueue() {
     // check to see if message syntax is valid
     if( msg.IsValid() ) {
       std::cout << " -> success" << std::endl;
-
-      UserMessage::ValidCommands cmd = msg.ResolveCommand();
 
       // message syntax is valid - send message to elevator (unless _add command)
       if( msg.ResolveCommand() != UserMessage::_add ) {
