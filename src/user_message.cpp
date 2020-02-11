@@ -46,6 +46,9 @@ bool UserMessage::IsValid() {
           // value parameter invalid with "continue" base command
           case _continue: { return _value.empty(); }
 
+          // cannot add new elevator with ID that matches existing elevator
+          case _add: { return false; }
+
           case _call: {
             /* NOTE: System::GetFloors() must return a **reference** to the _floors
             * vector, otherwise the search below (find) will not be properly
@@ -72,9 +75,24 @@ bool UserMessage::IsValid() {
 
     // finished iterating through existing elevators - add new elevator?
     if( ResolveCommand() == _add && !_value.empty() ) {
-      std::cout << "Adding Elevator " << _eid << " to system" << std::endl;
-      _system->AddElevator(_eid, std::stod(_value));
-      return false;   // do not send an "add elevator" command to elevator
+      try {
+        std::stod(_value);
+      }
+      catch( const std::invalid_argument ) {
+        // std::cout << "invalid Max Load argumated passed to add function" << std::endl;
+        return false;
+      }
+
+      if( std::stod(_value) > 0.0 ) {
+        // std::cout << "Adding Elevator " << _eid << " to system" << std::endl;
+        _system->AddElevator(_eid, std::stod(_value));
+        return true;
+      }
+      else {
+        // std::cout << "Cannot add new elevator with negative max load" << std::endl;
+      }
+
+      return false; 
     }
 
     return false;

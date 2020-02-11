@@ -7,25 +7,9 @@
 #include "elevator.h"
 #include "user_message.h"
 
-System::System() {
-  OnInit();
-}
+void System::Init() {
 
-void System::OnInit() {
-  
   std::string user_msg{""}, cmd{""};
-
-  std::cout << "System::OnInit():" << std::endl;
-  
-  // std::cout << "\t_elevators:\t" << &_elevators << std::endl;
-
-  // auto begin = _elevators.begin();
-  // auto end = _elevators.end();
-
-  // std::cout << "\tbegin:\t" << &(*begin) << std::endl;
-  // std::cout << "\tend:\t" << &(*end) << std::endl;
-
-  // Test();
 
   // main loop
   while( true ) {
@@ -44,9 +28,11 @@ void System::OnInit() {
       }
     }
     cmd = "";   // reset input command
+    std::cout << "\n";
 
     // parse all incoming messages (up to "continue" statement )
     ParseMessageQueue();
+    std::cout << "\n";
 
     // do individual elevator tasks
     SystemTaskManager();
@@ -60,23 +46,34 @@ void System::ParseMessageQueue() {
   while( !_msgs.empty() ) {
     // get next message off the top of the queue
     UserMessage& msg = _msgs.front();
-    std::cout << "msg received: " << msg.GetMsg() << std::endl;
+    std::cout << "msg received: " << msg.GetMsg();
 
     // check to see if message syntax is valid
     if( msg.IsValid() ) {
-      std::cout << "message valid" << std::endl;
+      std::cout << " -> success" << std::endl;
 
-      // message syntax is valid - send message to elevator
-      SendMessageToElevator(msg);
+      UserMessage::ValidCommands cmd = msg.ResolveCommand();
+
+      // message syntax is valid - send message to elevator (unless _add command)
+      if( msg.ResolveCommand() != UserMessage::_add ) {
+        SendMessageToElevator(msg);
+      }
     }
     else {
-      std::cout << "message invalid" << std::endl;
+      std::cout << " -> failure" << std::endl;
     }
 
     // remove element from front of queue
     _msgs.pop();
   }
-  std::cout << "\n";
+}
+
+void System::SystemTaskManager() {
+
+  // call each elevators task manager
+  for( auto it = _elevators.begin(); it != _elevators.end(); it++ ) {
+    (*it).ElevatorTaskManager();
+  }
 }
 
 void System::SendMessageToElevator(UserMessage msg) {
@@ -88,24 +85,9 @@ void System::SendMessageToElevator(UserMessage msg) {
   }
 }
 
-bool System::AddElevator(std::string name, double payload) {
+void System::AddElevator(std::string name, double payload) {
 
-  if( payload >= 0.0 ) {
-    _elevators.emplace_back(name, payload, this);
-    return true;
-  }
-  else {
-    std::cout << "Cannot add new elevator with negative max load" << std::endl;
-    return false;
-  }
-}
-
-void System::SystemTaskManager() {
-
-  for( auto it = _elevators.begin(); it != _elevators.end(); it++ ) {
-    (*it).ElevatorTaskManager();
-  }
-
+  _elevators.emplace_back(name, payload, this);
 }
 
 void System::Test() {

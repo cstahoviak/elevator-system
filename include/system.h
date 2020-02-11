@@ -11,7 +11,7 @@ class System {
   private:
     std::queue<UserMessage> _msgs;   // incoming messages from user (FIFO)
     std::vector<Elevator> _elevators;
-    
+
     // floor elements listed from bottom of building to top
     std::vector<std::string> _floors = {
       "B2",   // basement 2
@@ -29,15 +29,14 @@ class System {
     void SystemTaskManager();                     // call ElevatorTaskManager() for each elevator
 
   public:
-    System();
-    void OnInit();
+    void Init();
     void Test();
 
     // getter functions
     const std::vector<std::string>& GetFloors() const { return _floors; }
     const std::vector<Elevator>& GetElevators() const { return _elevators; }
 
-    bool AddElevator(std::string name, double payload);   // true -> request successful
+    void AddElevator(std::string name, double payload);   // true -> request successful
                                                           // false -> request failed
 
 };

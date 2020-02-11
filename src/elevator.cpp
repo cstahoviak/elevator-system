@@ -1,7 +1,6 @@
 #include <iostream>
 #include <algorithm>  // std::find
 #include <iterator>   // std::distance
-
 #include <thread>     // std::this_thread
 #include <chrono>     // std::chrono
 
@@ -17,8 +16,6 @@ void Elevator::ElevatorTaskManager() {
 
     switch( task.ResolveCommand() ) {
 
-      // STOPPED HERE: switch statement executing more than one case??
-
       case UserMessage::_status: {
         UpdateStatus();   // first, update elevator status
         GetStatus();      // then display current status
@@ -26,6 +23,11 @@ void Elevator::ElevatorTaskManager() {
       }
 
       case UserMessage::_continue: { /* do nothing */ break; }
+
+      case UserMessage::_add: {
+        std::cout << "ElevatorTaskManager() ERROR: SHOULD NOT GET HERE" << std::endl;
+        break;
+      }
 
       case UserMessage::_call: {
         CallToFloor( task.GetValue() );
@@ -54,22 +56,24 @@ void Elevator::ElevatorTaskManager() {
 
 void Elevator::GetStatus() {
 
+  std::string currentLoad = std::to_string(_currentLoad);
+
   switch( _status ) {
     
     case _stationary: {
-      std::cout << "stationary " + _id << std::endl;
+      std::cout << "stationary " + _id << " " << _currentFloor << std::endl;
       break;
     }
 
     case _up: {
       std::cout << _id + " moving-up " + _currentFloor + " " + _destinationFloor +
-        " " + std::to_string(_currentLoad) << std::endl;
+        " " + currentLoad.substr(0, currentLoad.find(".")+3) << std::endl;
       break;
     }
 
     case _down: {
       std::cout << _id + " moving-down " + _currentFloor + " " + _destinationFloor +
-        " " + std::to_string(_currentLoad) << std::endl;
+        " " + currentLoad.substr(0, currentLoad.find(".")+3) << std::endl;
       break;
     }
   }
@@ -86,8 +90,6 @@ void Elevator::UpdateStatus() {
     int idx     = 0;
     int current = 0;
     int dest    = 0;
-
-    // TODO: Problem evaluating up vs down
 
     for( auto it = _system->GetFloors().begin(); it != _system->GetFloors().end(); it++ ) {
       if( (*it).compare(_currentFloor) == 0 ) {
@@ -116,9 +118,9 @@ void Elevator::CallToFloor( std::string floor ) {
   _destinationFloor = floor;  // set destination floor
 
   UpdateStatus();   // update elevator status
-  GetStatus();      // displace updated status
+  GetStatus();      // display updated status
   MoveElevator();   // move elevator to destination floor
-  GetStatus();      // get current status
+  GetStatus();      // display current status (should be stationary)
 }
 
 void Elevator::MoveElevator() {
