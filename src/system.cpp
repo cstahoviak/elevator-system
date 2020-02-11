@@ -49,8 +49,8 @@ void System::OnInit() {
 
     // do individual elevator tasks
     SystemTaskManager();
+    std::cout << "\n";
   }
-
 }
 
 void System::ParseMessageQueue() {
@@ -75,7 +75,7 @@ void System::ParseMessageQueue() {
     // remove element from front of queue
     _msgs.pop();
   }
-  std::cout << "\n\n";
+  std::cout << "\n";
 }
 
 void System::SendMessageToElevator(UserMessage msg) {
