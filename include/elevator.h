@@ -31,18 +31,18 @@ class Elevator {
 
     Status _status{_stationary};
 
+    void UpdateStatus();                  // updates elevator status
+    void GetStatus();                     // displays elevator status
+    void CallToFloor(std::string floor);  // calls elevator to specific floor
+    void MoveElevator();                  // moves elevator from _currentFloor to _destination Floor
+    bool Continue();                      // unused
+
   public:
     Elevator(std::string id, double payload, System* system) : _id(id),
                                                               _maxLoad(payload),
                                                               _system(system) {}
 
     void ElevatorTaskManager();
-
-    void UpdateStatus();
-    void GetStatus();
-    void CallToFloor(std::string floor);
-    void MoveElevator();
-    bool Continue();
 
     // getter/ setter functions
     // NOTE: the "const" keyword indicates that the member function will NOT modify

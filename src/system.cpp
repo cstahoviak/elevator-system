@@ -12,6 +12,7 @@ System::System() {
 }
 
 void System::OnInit() {
+  
   std::string user_msg{""}, cmd{""};
 
   std::cout << "System::OnInit():" << std::endl;

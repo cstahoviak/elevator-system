@@ -11,6 +11,7 @@ class System {
   private:
     std::queue<UserMessage> _msgs;   // incoming messages from user (FIFO)
     std::vector<Elevator> _elevators;
+    
     // floor elements listed from bottom of building to top
     std::vector<std::string> _floors = {
       "B2",   // basement 2
@@ -23,9 +24,9 @@ class System {
       "P"     // penthouse
     };
 
-    void ParseMessageQueue();
-    void SendMessageToElevator(UserMessage msg);
-    void SystemTaskManager();
+    void ParseMessageQueue();                     // parse incoming user messages
+    void SendMessageToElevator(UserMessage msg);  // send valid messages to elevators
+    void SystemTaskManager();                     // call ElevatorTaskManager() for each elevator
 
   public:
     System();
