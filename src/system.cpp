@@ -68,15 +68,25 @@ void System::ParseMessageQueue() {
 
 void System::SystemTaskManager() {
 
+  /* NOTE: On Incrementing Iterators (it++ vs. ++it)
+  * Pre-increment is more efficient than post-increment, because for postincrement
+  * the object must increment itself and then return a temporary containing its old
+  * value. Note that this is true even for builtins like int."
+  */
+
+  // Q: should I replace the for loop with std::for_each()? (below doesn't work)
+  // std::for_each(_elevators.begin(), _elevators.end(), Elevator::ElevatorTaskManager());
+
   // call each elevators task manager
-  for( auto it = _elevators.begin(); it != _elevators.end(); it++ ) {
+  for( auto it = _elevators.begin(); it != _elevators.end(); ++it ) {
     (*it).ElevatorTaskManager();
   }
 }
 
 void System::SendMessageToElevator(UserMessage msg) {
   
-  for( auto it = _elevators.begin(); it != _elevators.end(); it++ ) {
+  for( auto it = _elevators.begin(); it != _elevators.end(); ++it ) {
+    // send message to elevator with matching ID
     if( (*it).GetID().compare( msg.GetEID() ) == 0 ) {
       (*it).AddTask( msg ); // send message / task to elevator
     }
@@ -85,6 +95,7 @@ void System::SendMessageToElevator(UserMessage msg) {
 
 void System::AddElevator(std::string name, double payload) {
 
+  // NOTE: prefer emplace_back() to push_back() for vectors of user-defined types
   _elevators.emplace_back(name, payload, this);
 }
 

@@ -54,7 +54,7 @@ void Elevator::ElevatorTaskManager() {
   }
 }
 
-void Elevator::GetStatus() {
+void Elevator::GetStatus() const {
 
   std::string currentLoad = std::to_string(_currentLoad);
 
@@ -130,10 +130,12 @@ void Elevator::MoveElevator() {
 
   // size_t dist = std::distance(current, dest);
 
+  // Q: Is there a better way to increment backwards through the floors vector?
+
   switch (_status) {
     case _up:
       // iterate "upawards" through floors
-      for (auto it = current; it != dest+1; it++) {
+      for (auto it = current; it != dest+1; ++it) {
         _currentFloor = (*it);
         std::cout << _id << ": " << _currentFloor << std::endl;
 
@@ -143,7 +145,7 @@ void Elevator::MoveElevator() {
 
     case _down:
       // iterate "downwards" through floors
-      for (auto it = current; it != dest-1; it--) {
+      for (auto it = current; it != dest-1; --it) {
         _currentFloor = (*it);
         std::cout << _id << ": " << _currentFloor << std::endl;
 

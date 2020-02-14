@@ -36,8 +36,8 @@ class UserMessage {
     std::string GetEID() const { return _eid; }
     std::string GetValue() const { return _value; }
 
-    ValidCommands ResolveCommand();
-    bool IsValid();
+    ValidCommands ResolveCommand() const;
+    bool IsValid();   // cannot be const because it calls ParseUserMessage()
 };
 
 #endif

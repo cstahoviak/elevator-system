@@ -32,7 +32,7 @@ class Elevator {
     Status _status{_stationary};
 
     void UpdateStatus();                  // updates elevator status
-    void GetStatus();                     // displays elevator status
+    void GetStatus() const;               // displays elevator status
     void CallToFloor(std::string floor);  // calls elevator to specific floor
     void MoveElevator();                  // moves elevator from _currentFloor to _destination Floor
     bool Continue();                      // unused
@@ -45,8 +45,6 @@ class Elevator {
     void ElevatorTaskManager();
 
     // getter/ setter functions
-    // NOTE: the "const" keyword indicates that the member function will NOT modify
-    // the object on which it's called
     std::string GetID() const { return _id; }
     double GetMaxLoad() const { return _maxLoad; }
     double GetCurrentLoad() const { return _currentLoad; }

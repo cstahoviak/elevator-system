@@ -12,7 +12,7 @@ void UserMessage::ParseUserMessage() {
   stream >> _cmd >> _eid >> _value;
 }
 
-UserMessage::ValidCommands UserMessage::ResolveCommand() {
+UserMessage::ValidCommands UserMessage::ResolveCommand() const {
   if( _cmd.compare("status") == 0 )   return _status;
   if( _cmd.compare("continue") == 0 ) return _continue;
   if( _cmd.compare("add") == 0 )      return _add;
@@ -36,7 +36,7 @@ bool UserMessage::IsValid() {
   else {
     
     // search existing elevators for matching ID
-    for( auto it = _system->GetElevators().begin(); it != _system->GetElevators().end(); it++) {
+    for( auto it = _system->GetElevators().begin(); it != _system->GetElevators().end(); ++it) {
       if( (*it).GetID().compare(_eid) == 0 ) {
         // input elevator ID matches valid elevator ID
         switch( ResolveCommand() ) {
