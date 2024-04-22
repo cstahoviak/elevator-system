@@ -27,7 +27,7 @@ class System {
     std::vector<Elevator> _elevators;   // is there a more approp. STL container?
 
     // floor elements listed from bottom of building to top
-    std::vector<std::string> _floors = {
+    const std::vector<std::string> _floors = {
       "B2",   // basement 2
       "B1",   // basement 1
       "UB",   // not sure what this is supposed to stand for
@@ -58,7 +58,6 @@ class System {
 
     void AddElevator(std::string name, double payload);   // true -> request successful
                                                           // false -> request failed
-
 };
 
 #endif

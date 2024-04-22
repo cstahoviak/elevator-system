@@ -130,7 +130,7 @@ void Elevator::MoveElevator() {
 
   // size_t dist = std::distance(current, dest);
 
-  // Q: Is there a better way to increment backwards through the floors vector?
+  // Q: Is there a better way to increment backwards through the _floors vector?
 
   switch (_status) {
     case _up:
@@ -158,6 +158,6 @@ void Elevator::MoveElevator() {
       break;
   }
 
-  // update elevator status
+  // update elevator status - could be done with a call to UpdateStatus()
   _status = _stationary;
 }
