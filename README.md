@@ -1,4 +1,4 @@
-#elevator-system
+# elevator-system
 
 A Zoox technical interview question from Spring 2020.
 
@@ -13,7 +13,7 @@ Build an application that simulates an elevator system.
 - All elevators by default start from the lowest floor.
 
 Bonuses:
-1. Add support for people getting in the elevators and requesting specific floors
+1. Add support for people getting in the elevators and requesting specific floors.
 2. Add support for multiple elevators working in a coordinated manner to minimize passenger wait time.
 
 Expectations:
@@ -36,15 +36,15 @@ continue <elevator-id>
 ### Detailed Example 1
 The user should be able to add elevators.
 
-__Commmand__: `add-elevator <elevator-id> <max-weight-supported-in-kgs>`
-__Example__: `add-elevator E1 200`
+__Commmand__: `add-elevator <elevator-id> <max-weight-supported-in-kgs>`\
+__Example__: `add-elevator E1 200`\
 __Response__: `success` if the request succeeds, `failure` if the request fails.
 
 ### Detailed Example 2
 The user should be able to request the real-time status of an elevator.
 
-__Commmand__: `status <elevator-id>`
-__Example__: `status E1 200`
+__Commmand__: `status <elevator-id>`\
+__Example__: `status E1 200`\
 __Response__:
   - `moving-down 6 B1 0` - The elevator is moving down, is currently on the 6th floor, headed for B1 and has 0kg of weight on board.
   - `moving-up L 1 23` - The elevator is moving up, is on floor L, headed for the 1st floor and has 23kg of weight on board.
@@ -54,8 +54,8 @@ __Response__:
 ### Detailed Example 3
 The user should be able to call an elevator for a specific floor.
 
-__Command__: `call-elevator <elevator-id> <floor-name>
-__Example__: `call-elevator E1 B1`
+__Command__: `call-elevator <elevator-id> <floor-name>`\
+__Example__: `call-elevator E1 B1`\
 __Response(s)__: `success` if the request succeeds, `failure` if the request fails.
 
 __Example Sequence of Commands__:
@@ -69,7 +69,7 @@ status E1 -> moving-down 6 B1 0
 ### Detailed Example 4
 Do the next action for the elevator.
 
-__Command__: continue <elevator-id>
+__Command__: continue <elevator-id>\
 __Example__: `continue E1`
 
 __Example Sequence of Commands__:
