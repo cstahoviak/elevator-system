@@ -1,58 +1,39 @@
-#ifndef ELEVATOR_H_
-#define ELEVATOR_H_
+
+#pragma once
+/**
+ * @file elevator.h
+ * @author your name (you@domain.com)
+ * @brief 
+ * @version 0.1
+ * @date 2024-07-28
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
 
 #include <string>
-#include <vector>
-#include <queue>
 
-#include "user_message.h"
-
-class System;   // forward delcaration
-
-class Elevator {
-  private:
-    std::string _id{""};
-    double      _maxLoad{0.0};
-    double      _currentLoad{0.0};
-
-    std::string _currentFloor{"B2"};      // all elevators start at the lowest floor by default
-    std::string _destinationFloor{"B2"};
-
-    std::queue<UserMessage> _tasks;   // tasks assigned to this elevator
-    bool _busy{false};                // elevator will continue to next task when not busy
-
-    System* _system;  // non-owning reference to the System object
-
-    enum Status {
-      _stationary,
-      _up,
-      _down
-    };
-
-    Status _status{_stationary};
-
-    void UpdateStatus();                  // updates elevator status
-    void GetStatus() const;               // displays elevator status
-    void CallToFloor(std::string floor);  // calls elevator to specific floor
-    void MoveElevator();                  // moves elevator from _currentFloor to _destination Floor
-    bool Continue();                      // unused
-
-  public:
-    Elevator(std::string id, double payload, System* system) : _id(id),
-                                                              _maxLoad(payload),
-                                                              _system(system) {}
-
-    void ElevatorTaskManager();
-
-    // getter/ setter functions
-    std::string GetID() const { return _id; }
-    double GetMaxLoad() const { return _maxLoad; }
-    double GetCurrentLoad() const { return _currentLoad; }
-    void AddTask(UserMessage msg) { _tasks.emplace(msg); }
-
-    // Bonus
-    bool Enter();   // will likely need to set _currentLoad
-    bool Exit();    
+enum class ElevatorStatus {
+  MOVING_UP,
+  MOVING_DOWN,
+  STATIONARY
 };
 
-#endif
+
+class Elevator
+{
+  private:
+    int id_;
+    double max_weight_;
+    double current_weight_;
+    std::string current_floor_;
+    ElevatorStatus status_;
+
+    std::queue<UserMessage> tasks_;
+
+  public:
+    Elevator(int id, double max_weight) : id_(id), max_weight_(max_weight) {}
+
+    ElevatorStatus status();
+    bool call(std::string floor);
+};

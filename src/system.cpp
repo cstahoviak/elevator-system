@@ -1,149 +1,34 @@
-#include <iostream>
-#include <string>
-#include <sstream>
-#include <algorithm>  // std::find
+/**
+ * @file system.cpp
+ * @author your name (you@domain.com)
+ * @brief 
+ * @version 0.1
+ * @date 2024-07-28
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
 
 #include "system.h"
-#include "elevator.h"
-#include "user_message.h"
 
-void System::Init() {
+#include <cstdlib>
+/**
+ * @brief Parse the user message queue.
+ * 
+ */
+void ElevatorSystem::_parse_message_queue() {
+  while (!_msgs.empty()) {
 
-  std::string user_msg{""}, cmd{""};
-
-  // main loop
-  while( true ) {
-
-    // take input from user until "continue" command is given
-    while( cmd.compare("continue") != 0 ) {
-      
-      // take input from user
-      std::cout << "User Input: ";
-      getline(std::cin, user_msg);
-      std::istringstream stream(user_msg);
-      stream >> cmd;    // pull first word off input stream
-
-      if( cmd.compare("continue") != 0 ) {
-        _msgs.emplace( user_msg, this );   // calls UserMessage Constructor
-      }
-    }
-    cmd = "";   // reset input command
-    std::cout << "\n";
-
-    // parse all incoming messages (up to "continue" statement)
-    ParseMessageQueue();
-    std::cout << "\n";
-
-    // do individual elevator tasks
-    SystemTaskManager();
-    std::cout << "\n";
   }
 }
 
-void System::ParseMessageQueue() {
+ElevatorSystem::task_manager() {
+  // First, parse the message queue
+  _parse_message_queue();
 
-  // de-queue all messages in system message queue
-  while( !_msgs.empty() ) {
-    // get next message off the top of the queue
-    UserMessage& msg = _msgs.front();
-    std::cout << "msg received: " << msg.GetMsg();
-
-    // check to see if message syntax is valid
-    if( msg.IsValid() ) {
-      std::cout << " -> success" << std::endl;
-
-      // message syntax is valid - send message to elevator (unless _add command)
-      if( msg.ResolveCommand() != UserMessage::_add ) {
-        SendMessageToElevator(msg);
-      }
-    }
-    else {
-      std::cout << " -> failure" << std::endl;
-    }
-
-    // remove element from front of queue
-    _msgs.pop();
-  }
-}
-
-void System::SystemTaskManager() {
-
-  /* NOTE: On Incrementing Iterators (it++ vs. ++it)
-  * Pre-increment is more efficient than post-increment, because for postincrement
-  * the object must increment itself and then return a temporary containing its old
-  * value. Note that this is true even for builtins like int."
-  */
-
-  // Q: should I replace the for loop with std::for_each()? (below doesn't work)
-  // std::for_each(_elevators.begin(), _elevators.end(), Elevator::ElevatorTaskManager());
-
-  // call each elevators task manager
-  for( auto it = _elevators.begin(); it != _elevators.end(); ++it ) {
-    (*it).ElevatorTaskManager();
-  }
-}
-
-void System::SendMessageToElevator(UserMessage msg) {
-  
-  for( auto it = _elevators.begin(); it != _elevators.end(); ++it ) {
-    // send message to elevator with matching ID
-    if( (*it).GetID().compare( msg.GetEID() ) == 0 ) {
-      (*it).AddTask( msg ); // send message / task to elevator
-    }
-  }
-}
-
-void System::AddElevator(std::string name, double payload) {
-
-  // NOTE: prefer emplace_back() to push_back() for vectors of user-defined types
-  _elevators.emplace_back(name, payload, this);
-}
-
-void System::Test() {
-
-  std::cout << "\nSystem::Test()" << std::endl;
-
-  std::vector<std::string> names{"E1", "E2", "E3"};
-
-  int i = 0;
-  for( auto name : names ) {
-    _elevators.emplace_back(name, i*100.0, this);
-    i++;
+  // Then, call the task manager for each elevator
+  for (Elevator& elevator : _elevators) {
+    elevator.task_manager();
   }
 
-  /* RANGE-BASED FOR LOOPS:
-  * The range-based for loop creates an object of type Elevator as a
-  * place-holder for each element of _elevators. As _elevators is iterated
-  * through, that address of elevator never changes.
-  */
-
-  std::cout << "\trange-based for loop" << std:: endl;
-  for( auto elevator : _elevators ) {
-    std::cout << "\televator " << elevator.GetID() << " at\t"
-      << &elevator << std::endl;
-  }
-
-  auto begin = _elevators.begin();
-  auto end = _elevators.end();
-
-  std::cout << "\n\tbegin:\t" << &(*begin) << std::endl;
-  std::cout << "\tend:\t" << &(*end) << std::endl;
-
-  /* ITERATOR-BASED FOR LOOPS:
-  * The iterator based for loop uses an iterator object to loop through the
-  * **actual** elements of _elevators without creating a temporary Elevator
-  * object as in the range-based for loop case. In this case, the actual address
-  * of each element of _elevators is printed.
-  */
-
-  // Q: Why does end (see above) not match the address of the last Elevator ebject
-  //in  _elevators printed below?
-
-  std::cout << "\n\titerator for loop" << std::endl;
-  for( auto it = _elevators.begin(); it != _elevators.end(); it++) {
-    std::cout << "\televator " << (*it).GetID() << " at\t" << &(*it) << std::endl;
-  }
-
-  UserMessage msg("message", this);
-  msg.Test();
 }

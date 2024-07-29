@@ -1,163 +1,48 @@
-#include <iostream>
-#include <algorithm>  // std::find
-#include <iterator>   // std::distance
-#include <thread>     // std::this_thread
-#include <chrono>     // std::chrono
+/**
+ * @file elevator.cpp
+ * @author your name (you@domain.com)
+ * @brief 
+ * @version 0.1
+ * @date 2024-07-28
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
 
-#include "elevator.h"
 #include "system.h"
-#include "user_message.h"
 
-void Elevator::ElevatorTaskManager() {
-  // de-queue all messages in elevator task queue
-  while( !_tasks.empty() ) {
-    // get a reference to the next message off the top of the queue
-    UserMessage& task = _tasks.front();
+#include <sstream>
 
-    switch( task.ResolveCommand() ) {
+/**
+ * @brief The public interface to the ElevatorSystem class.
+ * 
+ */
+void ElevatorSystem::run() {
+    while ( true ) {
 
-      case UserMessage::_status: {
-        UpdateStatus();   // first, update elevator status
-        GetStatus();      // then display current status
-        break;
+      // Create the user message  
+      UserMessage usr_msg;
+
+      // Add messages to System queue until a "continue" message is received.
+      while ( usr_msg.type() != UserMessageType::CONTINUE) {
+        // Store the full user message and the command keyword
+        std::string msg{""}, cmd{""};
+
+        // Get a new line of input
+        std::cout << "User Input: ";
+        std::getline(std::cin, msg);
+        // Convert to stream and pull the first word off the input stream
+        std::istringstream stream(msg);
+        stream >> cmd;
+
+        // Add user massage to the system queue (calls the UserMessage ctor)
+        _msgs.emplace(msg);
       }
+      std::cout << "\n";
 
-      case UserMessage::_continue: { /* do nothing */ break; }
+    // Route valid massages to individual elevators via the "task manager".
+    system._task_manager();
 
-      case UserMessage::_add: {
-        std::cout << "ElevatorTaskManager() ERROR: SHOULD NOT GET HERE" << std::endl;
-        break;
-      }
-
-      case UserMessage::_call: {
-        CallToFloor( task.GetValue() );
-        break;
-      }
-      case UserMessage::_enter: {
-        std::cout << "Ignoring ENTER elevator command" << std::endl;
-        break;
-      }
-
-      case UserMessage::_exit: {
-        std::cout << "Ignoring EXIT elevator command" << std::endl;
-        break;
-      }
-
-      default: {
-        std::cout << "ElevatorTaskManager() ERROR: SHOULD NOT GET HERE" << std::endl;
-        break;
-      }
-    }
-
-    // remove element from front of queue
-    _tasks.pop();
-  }
-}
-
-void Elevator::GetStatus() const {
-
-  std::string currentLoad = std::to_string(_currentLoad);
-
-  switch( _status ) {
-    
-    case _stationary: {
-      std::cout << "stationary " + _id << " " << _currentFloor << std::endl;
-      break;
-    }
-
-    case _up: {
-      std::cout << _id + " moving-up " + _currentFloor + " " + _destinationFloor +
-        " " + currentLoad.substr(0, currentLoad.find(".")+3) << std::endl;
-      break;
-    }
-
-    case _down: {
-      std::cout << _id + " moving-down " + _currentFloor + " " + _destinationFloor +
-        " " + currentLoad.substr(0, currentLoad.find(".")+3) << std::endl;
-      break;
-    }
   }
 
-}
-
-void Elevator::UpdateStatus() {
-
-  if( _currentFloor.compare(_destinationFloor) == 0 ) {
-    // elevator at its destination floor - not in motion
-    _status = _stationary;
-  }
-  else {
-    int idx     = 0;
-    int current = 0;
-    int dest    = 0;
-
-    for( auto it = _system->GetFloors().begin(); it != _system->GetFloors().end(); it++ ) {
-      if( (*it).compare(_currentFloor) == 0 ) {
-        current = idx;
-      }
-      if( (*it).compare(_destinationFloor) == 0 ) {
-        dest = idx;
-      }
-      idx++;
-    }
-
-    if( (dest - current) > 0) {
-      _status = _up;
-    }
-    else {
-      _status = _down;
-    }
-  }
-
-}
-
-void Elevator::CallToFloor( std::string floor ) {
-
-  std::cout  << _id << " -> " << floor << std::endl;
-
-  _destinationFloor = floor;  // set destination floor
-
-  UpdateStatus();   // update elevator status
-  GetStatus();      // display updated status
-  MoveElevator();   // move elevator to destination floor
-  GetStatus();      // display current status (should be stationary)
-}
-
-void Elevator::MoveElevator() {
-
-  auto current = std::find(_system->GetFloors().begin(), _system->GetFloors().end(), _currentFloor);
-  auto dest = std::find(_system->GetFloors().begin(), _system->GetFloors().end(), _destinationFloor);
-
-  // size_t dist = std::distance(current, dest);
-
-  // Q: Is there a better way to increment backwards through the _floors vector?
-
-  switch (_status) {
-    case _up:
-      // iterate "upawards" through floors
-      for (auto it = current; it != dest+1; ++it) {
-        _currentFloor = (*it);
-        std::cout << _id << ": " << _currentFloor << std::endl;
-
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-      }
-      break;
-
-    case _down:
-      // iterate "downwards" through floors
-      for (auto it = current; it != dest-1; --it) {
-        _currentFloor = (*it);
-        std::cout << _id << ": " << _currentFloor << std::endl;
-
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-      }
-      break;
-  
-    default:
-      std::cout << "MoveElevator() ERROR: SHOULD NOT GET HERE" << std::endl;
-      break;
-  }
-
-  // update elevator status - could be done with a call to UpdateStatus()
-  _status = _stationary;
 }

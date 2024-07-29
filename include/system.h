@@ -1,63 +1,40 @@
-#ifndef SYSTEM_H_
-#define SYSTEM_H_
-
-#include <vector>
-#include <queue>
+#pragma once
+/**
+ * @file system.h
+ * @author your name (you@domain.com)
+ * @brief The elevator System.
+ * @version 0.1
+ * @date 2024-07-28
+ * 
+ * @copyright Copyright (c) 2024
+ * 
+ */
 
 #include "elevator.h"
-#include "user_message.h"
+#include "message.h"
 
-/* Q: Is there a more appropriate STL container type for _elevators and _floors?
+#include <queue>
+#include <string>
+#include <vector>
 
-* _elevators can be added to, but not removed from, and the member variables of
-* the Elevator elements will be changed during operation, e'g. the _currentFloor
-* _currentLoad will vary. I also need to be able to iterate through the elements of
-* _elevators, e.g. for call the ElevatorTaskManager() for each elevator.
-*
-* _floors is set when the System object is instantiated and never changes - elements
-* will not be added or removed (ever). I need to be able to check whether or not a
-* spcific value exists in _floors to know if a given "call" command is valid - see
-* the _call case of the switch statement in UserMessage::IsValid() for an example of
-* how this is currently done.
-*/
-
-class System {
+class ElevatorSystem
+{
   private:
-    std::queue<UserMessage> _msgs;      // incoming messages from user (FIFO)
-    std::vector<Elevator> _elevators;   // is there a more approp. STL container?
+    std::queue<UserMessage> _msgs;
+    // TODO: Store vector of unique pointers instead of vector of Elevator objs.
+    std::vector<Elevator> _elevators;
 
-    // floor elements listed from bottom of building to top
-    const std::vector<std::string> _floors = {
-      "B2",   // basement 2
-      "B1",   // basement 1
-      "UB",   // not sure what this is supposed to stand for
-      "L",    // lobby
-      "1",
-      "2",
-      "3",
-      "P"     // penthouse
-    };
+    void _parse_message_queue();
+    void _task_manager();
+    bool _add_message(UserMessage& msg) {_msgs.emplace}
 
 
-    void ParseMessageQueue();                     // parse incoming user messages
-    void SystemTaskManager();                     // call ElevatorTaskManager() for each elevator
-    void SendMessageToElevator(UserMessage msg);  // send valid messages to elevators
+    bool _add_elevator(int id, double max_weight);
+    ElevatorStatus _status(int id);
+    bool _call(int id, std::string floor);
+
 
   public:
-    void Init();
-    void Test();
-
-    // getter functions
-    /* NOTE: the "const" keyword before the return type indicates that the method
-    *  will return a const reference to type T (std::vector<std::string> in this
-    *  case). The "const" keyword after the method name indicates that the member
-    *  function will NOT modify the object on which it's called.
-    */
-    const std::vector<std::string>& GetFloors() const { return _floors; }
-    const std::vector<Elevator>& GetElevators() const { return _elevators; }
-
-    void AddElevator(std::string name, double payload);   // true -> request successful
-                                                          // false -> request failed
+    ElevatorSystem() = default;
+    void run();    
 };
-
-#endif
