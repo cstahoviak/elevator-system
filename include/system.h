@@ -15,19 +15,17 @@
 
 #include <queue>
 #include <string>
-#include <vector>
+#include <unordered_map>
 
 class ElevatorSystem
 {
   private:
     std::queue<UserMessage> _msgs;
-    // TODO: Store vector of unique pointers instead of vector of Elevator objs.
-    std::vector<Elevator> _elevators;
+    // TODO: Maybe the value should be a unique pointer instead of an Elevator obj?
+    std::unordered_map<std::string, Elevator> _elevators;
 
     void _parse_message_queue();
     void _task_manager();
-    bool _add_message(UserMessage& msg) {_msgs.emplace}
-
 
     bool _add_elevator(int id, double max_weight);
     ElevatorStatus _status(int id);

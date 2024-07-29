@@ -9,40 +9,40 @@
  * 
  */
 
-#include "system.h"
+#include "elevator.h"
+#include "command.h"
 
-#include <sstream>
+void Elevator::create_command(const UserMessage& msg) {
+  // TODO: Create the elevator Command from the user message
 
-/**
- * @brief The public interface to the ElevatorSystem class.
- * 
- */
-void ElevatorSystem::run() {
-    while ( true ) {
+}
 
-      // Create the user message  
-      UserMessage usr_msg;
+void Elevator::task_manager() {
+  // Execute all elevator tasks in the queue
+  while (!_tasks.empty()) {}
+    UserMessage& cmd = _commands.front();
 
-      // Add messages to System queue until a "continue" message is received.
-      while ( usr_msg.type() != UserMessageType::CONTINUE) {
-        // Store the full user message and the command keyword
-        std::string msg{""}, cmd{""};
+    switch (cmd.type())
+    {
+    case (ElevatorCommandType::CALL):
+      // Call elevator to specific floor
+      _call();
+      break;
 
-        // Get a new line of input
-        std::cout << "User Input: ";
-        std::getline(std::cin, msg);
-        // Convert to stream and pull the first word off the input stream
-        std::istringstream stream(msg);
-        stream >> cmd;
+    case (ElevatorCommandType::STATUS):
+      // Get status of elevator
+      _status();
+      break;
 
-        // Add user massage to the system queue (calls the UserMessage ctor)
-        _msgs.emplace(msg);
-      }
-      std::cout << "\n";
+    case (ElevatorCommandType::ENTER):
+      // TODO: not implemented.
+      break;
 
-    // Route valid massages to individual elevators via the "task manager".
-    system._task_manager();
-
-  }
-
+    case (UserMessageType::EXIT):
+      // TODO: not implemented.
+      break;
+    
+    default:
+      break;
+    }
 }

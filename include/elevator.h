@@ -11,6 +11,10 @@
  * 
  */
 
+#include "command.h"
+#include "message.h"
+
+#include <queue>
 #include <string>
 
 enum class ElevatorStatus {
@@ -23,17 +27,23 @@ enum class ElevatorStatus {
 class Elevator
 {
   private:
-    int id_;
-    double max_weight_;
-    double current_weight_;
-    std::string current_floor_;
-    ElevatorStatus status_;
+    std::string _id;
+    double _max_weight;
+    double _current_weight;
+    std::string _current_floor;
+    ElevatorStatus _status;
 
-    std::queue<UserMessage> tasks_;
+    std::queue<ElevatorCommand> _commands;
+
+    ElevatorStatus _status();
+    bool _call(std::string floor);
 
   public:
-    Elevator(int id, double max_weight) : id_(id), max_weight_(max_weight) {}
+    Elevator(std::string id, double max_weight) : 
+      _id(id), _max_weight(max_weight) {}
 
-    ElevatorStatus status();
-    bool call(std::string floor);
+    void create_command(const UserMessage& msg);
+    void task_manager();
+
+    
 };
