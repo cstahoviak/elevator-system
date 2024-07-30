@@ -10,6 +10,7 @@
  */
 
 #include "system.h"
+#include "message.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -66,11 +67,14 @@ void ElevatorSystem::_parse_message_queue() {
       if ( _elevators.find(msg.eid()) != _elevators.end() ) {
         // If valid, and elevator ID matches an existing elevator, create
         // ElevatorCommand from the user message.
-        std::unique_ptr<ElevatorCommand> cmd =
+        std::unique_ptr<ElevatorCommand> cmd = 
           msg.create_command(&_elevators[msg.eid()]);
 
-        // Dispatch the command to the elevator.
-          _elevators[msg.eid()].add_command(cmd);
+        if ( cmd.get() ) {
+          // If the command is valid (not nullptr), dispatch the command to the
+          // elevator.
+          _elevators[msg.eid()].add_command(std::move(cmd));
+        }
       }
     }
     else {

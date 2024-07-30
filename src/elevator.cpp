@@ -12,21 +12,24 @@
 #include "elevator.h"
 #include "command.h"
 
-#include <chrono>     // std::chrono
+#include <iostream>
 #include <sstream>
 #include <thread>     // std::this_thread
 
 void Elevator::task_manager() {
   // Execute all elevator tasks in the queue
   while ( !_commands.empty() ) {
-    // Get the first command
-    ElevatorCommand& cmd = *(_commands.front());
+    // Get the first command (explicityly move the pointer out of the queue)
+    std::unique_ptr<ElevatorCommand> cmd = std::move(_commands.front());
 
     // Execute the command
-    std::ostringstream& result = cmd.execute();
+    std::ostringstream& result = cmd.get()->execute();
     std::cout << result.str();
 
-    // Remove the command from the front of the queue
+    // Remove the command from the front of the queue.
+    // NOTE: After the move, the top element in the queue is a unique_ptr equal
+    // to nullptr. The pop is needed to remove this "empty" unique_ptr from the
+    // queue.
     _commands.pop();
   }
 }

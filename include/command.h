@@ -11,6 +11,8 @@
  * 
  */
 
+// #include "elevator.h"
+
 #include <iostream>
 #include <string>
 
@@ -56,7 +58,7 @@ class ElevatorCommand {
 
 };
 
-class ElevatorStatusCommand : ElevatorCommand {
+class ElevatorStatusCommand : public ElevatorCommand {
   public:
     ElevatorStatusCommand(std::string eid, Elevator* elevator) :
       ElevatorCommand(eid, ElevatorCommandType::STATUS, elevator) {}
@@ -64,9 +66,9 @@ class ElevatorStatusCommand : ElevatorCommand {
     std::ostringstream& execute() { return this->elevator()->status(); }
 };
 
-class ElevatorCallCommand : ElevatorCommand {
+class ElevatorCallCommand : public ElevatorCommand {
   public:
-    ElevatorCallCommand(std::string eid, Elevator* elevator, std::string& destination) :
+    ElevatorCallCommand(std::string eid, Elevator* elevator, std::string destination) :
       _destination{destination}, ElevatorCommand(eid, ElevatorCommandType::CALL, elevator) {}
     
     std::ostringstream& execute() { return this->elevator()->call(_destination); }

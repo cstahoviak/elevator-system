@@ -11,10 +11,29 @@
  * 
  */
 
-#include "system.h"
+// #include "system.h"
 
+#include <chrono>
+#include <map>
+#include <memory>
 #include <queue>
 #include <string>
+
+// Forward-declare some classes
+// class ElevatorSystem {
+//   public:
+//     enum class Floor {
+//       B2,   // basement 2
+//       B1,   // basement 1
+//       UB,   // not sure what this is supposed to stand for
+//       L,    // lobby
+//       ONE,
+//       TWO,
+//       THREE,
+//       P     // penthouse
+//     };
+// };
+class ElevatorCommand;
 
 class Elevator
 {

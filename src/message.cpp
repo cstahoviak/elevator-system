@@ -9,6 +9,7 @@
  * 
  */
 
+#include "command.h"
 #include "message.h"
 
 #include <iostream>
@@ -67,42 +68,37 @@ UserMessage::UserMessage(std::string msg, ElevatorSystem* system) :
  */
 std::unique_ptr<ElevatorCommand> UserMessage::create_command(Elevator* elevator) const
 {
+  std::unique_ptr<ElevatorCommand> cmd =
+    std::make_unique<ElevatorCommand>(nullptr);
   switch ( _type )
   {
   case ( UserMessageType::ADD ):
     std::cout << "Cannot create Elevator command from 'ADD' message."
       << std::endl;
-    std::unique_ptr cmd = std::make_unique<ElevatorCommand>(nullptr);
     break;
 
   case ( UserMessageType::STATUS ):
-    std::unique_ptr cmd =
-      std::make_unique<ElevatorStatusCommand>(_eid, elevator);
+    cmd = std::make_unique<ElevatorStatusCommand>(_eid, elevator);
     break;
 
   case ( UserMessageType::CALL ):
-    std::unique_ptr cmd =
-      std::make_unique<ElevatorCallCommand>(_eid, elevator, _args[1]);
+    cmd = std::make_unique<ElevatorCallCommand>(_eid, elevator, _args[1]);
     break;
 
   case ( UserMessageType::ENTER ):
     // "enter" command not implemented yet.
-    std::unique_ptr cmd = std::make_unique<ElevatorCommand>(nullptr);
     break;
 
   case ( UserMessageType::EXIT ):
     // "exit" command not implemented yet.
-    std::unique_ptr cmd = std::make_unique<ElevatorCommand>(nullptr);
     break;
 
   case ( UserMessageType::CONTINUE ):
     std::cout << "Cannot create Elevator command from 'CONTINUE' message."
       << std::endl;
-    std::unique_ptr cmd = std::make_unique<ElevatorCommand>(nullptr);
     break;
   
   default:
-    std::unique_ptr cmd = std::make_unique<ElevatorCommand>(nullptr);
     break;
   }
 

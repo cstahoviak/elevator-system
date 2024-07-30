@@ -10,13 +10,16 @@
  * 
  */
 
-#include "command.h"
+#include "elevator.h"
 #include "system.h"
 
 #include <memory>
 #include <optional>
 #include <string>
 #include <vector>
+
+// Forward-declare some classes
+class ElevatorCommand;
 
 /**
  * @brief
@@ -41,7 +44,7 @@ class UserMessage
     UserMessage(std::string msg, ElevatorSystem* system);
 
     std::unique_ptr<ElevatorCommand> create_command(Elevator* elevator) const;
-    bool is_valid() { return is_valid; };
+    bool is_valid() const { return _is_valid; };
 
     // Getters
     const std::string& eid() const { return _eid; }
