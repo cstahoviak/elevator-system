@@ -12,6 +12,7 @@
 #include "system.h"
 
 #include <cstdlib>
+#include <iostream>
 #include <sstream>
 
 /**
@@ -29,14 +30,14 @@ void ElevatorSystem::run() {
         std::getline(std::cin, msg);
 
         // Convert to stream and pull the first word off the input stream
-        std::istringstream stream(msg);
-        stream >> cmd;
+        // std::istringstream stream(msg);
+        // stream >> cmd;
 
         // Add user massage to the system queue (calls the UserMessage ctor)
         _msgs.emplace(msg);
 
         // Add messages to System queue until a "continue" message is received.
-      } while(_msgs.back().type() != UserMessageType::CONTINUE);
+      } while( _msgs.back().type() != UserMessageType::CONTINUE );
       std::cout << "\n";
 
     // Route valid massages to individual elevators via the "task manager".
@@ -49,22 +50,33 @@ void ElevatorSystem::run() {
  * 
  */
 void ElevatorSystem::_parse_message_queue() {
-  while (!_msgs.empty()) {
+  while ( !_msgs.empty() ) {
     // Get the message off the front of the queue
     UserMessage& msg = _msgs.front();
 
-    if (msg.type() == UserMessageType::ADD) {
+    if ( msg.is_valid() ) {
       // If ADD command, add elevator to system.
-      const auto& pair = _elevators.try_emplace(msg.eid(), std::stod(msg.value()));
-      std::cout << (pair.second ? "-> success\n" : "-> failure\n");
+      if ( msg.type() == UserMessageType::ADD ) {
+        // Assume that the first element of thr args vector is the max weight
+        const auto& pair = _elevators.try_emplace(
+          msg.eid(), std::stod(msg.args()[0]), this);
+        std::cout << (pair.second ? "-> success.\n" : "-> failure.\n");
+      }
 
-    }
-    else if (msg.is_valid() && _elevators.find(msg.eid()) != _elevators.end()) {
-      // If valid, dispatch the message to the corresponding elevator.
-      _elevators[msg.eid()].create_command(msg);
+      if ( _elevators.find(msg.eid()) != _elevators.end() ) {
+        // If valid, and elevator ID matches an existing elevator, create
+        // ElevatorCommand from the user message.
+        ElevatorCommand cmd = msg.create_command();
+
+        // Dispatch the command to the elevator.
+        _elevators[msg.eid()].add_command(cmd);
+      }
+    else {
+      // An invalid command was added to the System message queue.
+      std::cout << " -> failure.\n";
     }
 
-    // Remove the first message from the queue
+    // Dequeue the message.
     _msgs.pop();
   }
 }
