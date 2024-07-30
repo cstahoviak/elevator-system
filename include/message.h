@@ -10,7 +10,13 @@
  * 
  */
 
+#include "command.h"
 #include "system.h"
+
+#include <memory>
+#include <optional>
+#include <string>
+#include <vector>
 
 /**
  * @brief
@@ -34,8 +40,8 @@ class UserMessage
   public:
     UserMessage(std::string msg, ElevatorSystem* system);
 
-    ElevatorCommand create_command() const;
-    bool is_valid() const;
+    std::unique_ptr<ElevatorCommand> create_command(Elevator* elevator) const;
+    bool is_valid() { return is_valid; };
 
     // Getters
     const std::string& eid() const { return _eid; }
@@ -51,10 +57,15 @@ class UserMessage
     std::string _eid{""};
     // A vector of string args to pass to the associated command
     std::vector<std::string> _args;
+    // Is the command valid?
+    bool _is_valid{false};
 
     UserMessageType _type;
 
     // A non-owning reference to the system (TODO: Convert to weak pointer)
     ElevatorSystem* _system;
+
+    // Determines if the message is valid (called by the ctor)
+    bool _validate_message();
 
 };

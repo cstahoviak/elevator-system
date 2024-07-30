@@ -18,7 +18,7 @@
 UserMessage::UserMessage(std::string msg, ElevatorSystem* system) :
     _msg(msg), _system(system)
 {
-  // Extract the "command", "eid" and message "value" from the message
+  // Extract the "command", "eid" and command "args" from the message
   std::istringstream stream(_msg);
   std::string args_str;
   stream >> _cmd >> _eid >> args_str;
@@ -49,79 +49,123 @@ UserMessage::UserMessage(std::string msg, ElevatorSystem* system) :
   else {
     _type = UserMessageType::INVALID;
   }
+
+  // Determine if the message is valid, i.e. do the number of args meet the
+  // requirements of the command?
+  _is_valid = _validate_message();
 }
 
-ElevatorCommand UserMessage::create_command() const
+/**
+ * @brief 
+ * 
+ * Note that I wanted to use std::optional<ElevatorCommand> for the return type,
+ * but std::optional doesn't work with polymorphic (derived) types. So I think
+ * the solution is to return a pointer to the command instead
+ * 
+ * @param elevator 
+ * @return std::optional<ElevatorCommand*> 
+ */
+std::unique_ptr<ElevatorCommand> UserMessage::create_command(Elevator* elevator) const
 {
-  switch (_type)
+  switch ( _type )
   {
-  case (UserMessageType::ADD):
+  case ( UserMessageType::ADD ):
     std::cout << "Cannot create Elevator command from 'ADD' message."
       << std::endl;
+    std::unique_ptr cmd = std::make_unique<ElevatorCommand>(nullptr);
     break;
 
-  case (UserMessageType::STATUS):
-    ElevatorStatusCommand cmd{_eid, _elevator};
+  case ( UserMessageType::STATUS ):
+    std::unique_ptr cmd =
+      std::make_unique<ElevatorStatusCommand>(_eid, elevator);
     break;
 
-  case (UserMessageType::CALL):
-    /* code */
+  case ( UserMessageType::CALL ):
+    std::unique_ptr cmd =
+      std::make_unique<ElevatorCallCommand>(_eid, elevator, _args[1]);
     break;
 
-  case (UserMessageType::ENTER):
-    /* code */
+  case ( UserMessageType::ENTER ):
+    // "enter" command not implemented yet.
+    std::unique_ptr cmd = std::make_unique<ElevatorCommand>(nullptr);
     break;
 
-  case (UserMessageType::EXIT):
-    /* code */
+  case ( UserMessageType::EXIT ):
+    // "exit" command not implemented yet.
+    std::unique_ptr cmd = std::make_unique<ElevatorCommand>(nullptr);
     break;
 
-  case (UserMessageType::CONTINUE):
+  case ( UserMessageType::CONTINUE ):
     std::cout << "Cannot create Elevator command from 'CONTINUE' message."
       << std::endl;
+    std::unique_ptr cmd = std::make_unique<ElevatorCommand>(nullptr);
     break;
   
   default:
+    std::unique_ptr cmd = std::make_unique<ElevatorCommand>(nullptr);
     break;
   }
+
+  return cmd;
 }
 
-bool UserMessage::is_valid() const
-{
-  bool is_valid = false;
+bool UserMessage::_validate_message() {
+  bool valid_msg = false;
 
-  switch (_type)
+  switch ( _type )
   {
-    case (UserMessageType::ADD):
-      
+    case ( UserMessageType::ADD ):
+      // Require only a single string arg for a valid "ADD" command.
+      valid_msg = _args.size() == 1;
+
+      // Note that if the elevator already exists in the system, this is handled
+      // by ElevatorSystem::_parse_message_queue.
       break;
 
-    case (UserMessageType::CALL):
-      /* code */
+    case ( UserMessageType::CALL ):
+      // Require two aruguments (an elevator and a floor)
+      bool valid_args = _args.size() == 2;
+
+      // Require that elevator exists (note, we expect _eid == _args[0])
+      bool valid_elevator = 
+        _system->elevators().find(_args[0]) != _system->elevators().end();
+
+      // Require that the called-to floor exists
+      bool valid_floor =
+        _system->floors().find(_args[1]) != _system->floors().end();
+
+      valid_msg = valid_args && valid_elevator && valid_floor;
       break;
 
-    case (UserMessageType::STATUS):
-      /* code */
+    case ( UserMessageType::STATUS ):
+      // Require a single arugument (a valid elevator)
+      bool valid_args = _args.size() == 1;
+
+      // Require that the elevator exists
+      bool valid_elevator = 
+        _system->elevators().find(_args[0]) != _system->elevators().end();
+
+      valid_msg == valid_args && valid_elevator;
       break;
 
-    case (UserMessageType::ENTER):
+    case ( UserMessageType::ENTER ):
       // "enter" command not implemented yet.
-      is_valid = false;
+      valid_msg = false;
       break;
 
-    case (UserMessageType::EXIT):
-      // "enter" command not implemented yet.
-      is_valid = false;
+    case ( UserMessageType::EXIT ):
+      // "exit" command not implemented yet.
+      valid_msg = false;
       break;
 
-    case (UserMessageType::CONTINUE):
-      is_valid = true;
+    case ( UserMessageType::CONTINUE ):
+      valid_msg = true;
       break;
     
     default:
-    is_valid = false;
+      valid_msg = false;
       break;
   }
 
-  return is_valid;
+  return valid_msg;
 }

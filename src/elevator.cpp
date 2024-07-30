@@ -12,22 +12,23 @@
 #include "elevator.h"
 #include "command.h"
 
-#include <thread>     // std::this_thread
 #include <chrono>     // std::chrono
+#include <sstream>
+#include <thread>     // std::this_thread
 
 void Elevator::task_manager() {
   // Execute all elevator tasks in the queue
   while ( !_commands.empty() ) {
     // Get the first command
-    ElevatorCommand& cmd = _commands.front();
+    ElevatorCommand& cmd = *(_commands.front());
 
     // Execute the command
-    cmd.execute();
+    std::ostringstream& result = cmd.execute();
+    std::cout << result.str();
 
     // Remove the command from the front of the queue
-    _commands.pop()
+    _commands.pop();
   }
-
 }
 
 void Elevator::_update_status() {
@@ -42,45 +43,43 @@ void Elevator::_update_status() {
   }
 }
 
-std::string& Elevator::status() {
+std::ostringstream& Elevator::status() {
   // Update the elevator's status if it's stale
   if ( _status_stale ) {
     _update_status();
   }
 
-  // TODO: Display the elevator status.
+  // Display the elevator status.
+  std::ostringstream result;
   switch ( _status ) {
     case Status::MOVING_UP:
       // TODO: Cannot convert Floor enum to string
-      return "moving-up " + _current_floor + " " + _destination_floor + " " +
-        + _current_weight;
+      result << "moving-up " << _current_floor << " " << _destination_floor 
+        << " " <<  _current_weight;
       
     case Status::MOVING_DOWN:
-      return "moving-down " + _current_floor + " " + _destination_floor + " " +
-        + _current_weight;
+      result << "moving-down " << _current_floor << " " << _destination_floor
+        << " " << _current_weight;
 
     case Status::STATIONARY:
-      return "stationary " + _current_floor;
+      result << "stationary " << _current_floor;
+
+    default:
+      break;
   }
 
-  switch (expression)
-  {
-  case /* constant-expression */:
-    /* code */
-    break;
-  
-  default:
-    break;
-  }
+  return result;
 }
 
-std::string& Elevator::call(std::string& destination) {
+std::ostringstream& Elevator::call(std::string& destination) {
   // Convert the destination string to a floor
   ElevatorSystem::Floor destination_floor = _system->str_to_floor(destination);
 
+  std::ostringstream result;
+
   if ( destination_floor == _current_floor ) {
     // Do nothing - the elevator is already on the floor it's been called to
-    std::string result = "-> success\n";
+    result << "-> success\n";
     return result;
   }
 
@@ -90,23 +89,14 @@ std::string& Elevator::call(std::string& destination) {
   int dist = dest - current;
 
   // Move the elevator to the destination floor
-  switch( _status )
+  // TODO: This check may not be necessary if the UserMessage already validates
+  // that the floor must exist for a valid "CALL" command to be issued.
+  if ( _system->floors().find(destination) != _system->floors().end() )
   {
-    case Status::MOVING_UP:
-      for ( int floor = current; floor < dest; floor++ ) {
-        // Update the current floor
-        _current_floor = ElevatorSystem::Floor{floor};
-
-        // TODO: Convert Floor to string
-        std::cout << _id << ": " << _current_floor << std::endl; 
-
-        // Traversing a floor will take 1 sec
-        std::this_thread::sleep_for(std::chrono::seconds(1));
-      }
-      break;
-
-    case Status::MOVING_DOWN:
-      for ( int floor = current; floor > dest; floor-- ) {
+    switch( _status )
+    {
+      case Status::MOVING_UP:
+        for ( int floor = current; floor < dest; floor++ ) {
           // Update the current floor
           _current_floor = ElevatorSystem::Floor{floor};
 
@@ -114,15 +104,38 @@ std::string& Elevator::call(std::string& destination) {
           std::cout << _id << ": " << _current_floor << std::endl; 
 
           // Traversing a floor will take 1 sec
-          std::this_thread::sleep_for(std::chrono::seconds(1));
+          std::this_thread::sleep_for(_floor_traverse_time_ms);
         }
-      break;
+        break;
 
-    default:
-      std::cout << "Elevator::call error: shouldn't get here." << std::endl; 
-      break;
+      case Status::MOVING_DOWN:
+        for ( int floor = current; floor > dest; floor-- ) {
+            // Update the current floor
+            _current_floor = ElevatorSystem::Floor{floor};
+
+            // TODO: Convert Floor to string
+            std::cout << _id << ": " << _current_floor << std::endl; 
+
+            // Traversing a floor will take 1 sec
+            std::this_thread::sleep_for(_floor_traverse_time_ms);
+          }
+        break;
+
+      default:
+        std::cout << "Elevator::call error: shouldn't get here." << std::endl; 
+        break;
+    }
+
+    result << "-> success\n";
+  }
+  else {
+    // The elevator was called to a floor that doesn't exist.
+    result << "-> failure. Elevator called to non-existent floor: "
+      << destination;
   }
 
-  // Set the elevator's status to stale
+  // Set the elevator's status to stale.
   _status_stale = true;
+
+  return result;
 }

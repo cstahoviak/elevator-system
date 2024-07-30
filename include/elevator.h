@@ -11,11 +11,8 @@
  * 
  */
 
-#include "command.h"
-#include "message.h"
 #include "system.h"
 
-#include <map>
 #include <queue>
 #include <string>
 
@@ -33,10 +30,10 @@ class Elevator
       _id(id), _max_weight(max_weight), _system(system) {}
 
     // The essential functions of an elevator (both return a result string)
-    std::string& status();
-    std::string& call(std::string& destination);
+    std::ostringstream& status();
+    std::ostringstream& call(std::string& destination);
 
-    void add_command(const ElevatorCommand& cmd) { _commands.push(cmd); };
+    void add_command(std::unique_ptr<ElevatorCommand> cmd) { _commands.push(cmd); };
     void task_manager();
 
     // Getters
@@ -60,12 +57,15 @@ class Elevator
     Status _status{Status::STATIONARY};
     bool _status_stale = true;
 
+    // How long (in ms) it takes an elevator to traverse a single floor.
+    std::chrono::milliseconds _floor_traverse_time_ms{1000};
+
+    // Store a queue of current commands (FIFO)
+    std::queue<std::unique_ptr<ElevatorCommand>> _commands;
+
     // Store a non-owning reference to the System (TODO: make std:weak_ptr)
     // TODO: Do I actually need this (not actually using it yet)?
     ElevatorSystem* _system;
-
-    // Store a queue of current commands (FIFO)
-    std::queue<ElevatorCommand> _commands;
 
     void _update_status();
 };

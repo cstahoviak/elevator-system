@@ -66,11 +66,13 @@ void ElevatorSystem::_parse_message_queue() {
       if ( _elevators.find(msg.eid()) != _elevators.end() ) {
         // If valid, and elevator ID matches an existing elevator, create
         // ElevatorCommand from the user message.
-        ElevatorCommand cmd = msg.create_command();
+        std::unique_ptr<ElevatorCommand> cmd =
+          msg.create_command(&_elevators[msg.eid()]);
 
         // Dispatch the command to the elevator.
-        _elevators[msg.eid()].add_command(cmd);
+          _elevators[msg.eid()].add_command(cmd);
       }
+    }
     else {
       // An invalid command was added to the System message queue.
       std::cout << " -> failure.\n";
@@ -85,8 +87,62 @@ void ElevatorSystem::_task_manager() {
   // First, parse the message queue
   _parse_message_queue();
 
-  // Then, call the task manager for each elevator
+  // Then, call the task manager for each elevator.
+  // TODO: Parallelize elevator dispatch with std::async
   for (auto& [eid, elevator] : _elevators) {
     elevator.task_manager();
   }
+}
+
+/**
+ * @brief Overloads the string stream operator for an ElevatorSystem::Floor obj.
+ * 
+ * Takes a ostream reference and returns an ostream reference. Passing and
+ * returning by value will cause errors.
+ * 
+ * @param stream 
+ * @param floor 
+ * @return std::ostream& 
+ */
+std::ostream& operator<<(std::ostream& stream, const ElevatorSystem::Floor& floor)
+{
+  switch ( floor ) {
+    case (ElevatorSystem::Floor::B2):
+      stream << "B2";
+      break;
+
+    case (ElevatorSystem::Floor::B1):
+      stream << "B1";
+      break;
+
+    case (ElevatorSystem::Floor::UB):
+      stream << "UB";
+      break;
+
+    case (ElevatorSystem::Floor::L):
+      stream << "L";
+      break;
+
+    case (ElevatorSystem::Floor::ONE):
+      stream << "ONE";
+      break;
+
+    case (ElevatorSystem::Floor::TWO):
+      stream << "TWO";
+      break;
+
+    case (ElevatorSystem::Floor::THREE):
+      stream << "THREE";
+      break;
+
+    case (ElevatorSystem::Floor::P):
+      stream << "P";
+      break;
+    
+    default:
+      stream << "invalid floor";
+      break;
+  }
+
+  return stream;
 }

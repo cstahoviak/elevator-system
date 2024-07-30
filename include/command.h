@@ -30,7 +30,7 @@ enum class ElevatorCommandType {
  * 3. (Maybe) Define a virtual method call "execute" which executes the command.
  */
 class ElevatorCommand {
-  protected:
+  private:
     std::string _eid{""};
     ElevatorCommandType _type;
 
@@ -38,38 +38,39 @@ class ElevatorCommand {
     Elevator* _elevator;
 
   public:
-      ElevatorCommand(std::string& eid, ElevatorCommandType type, Elevator* elevator) : 
-        _eid{eid}, _type{type}, _elevator{elevator} {};
+    ElevatorCommand(std::string eid, ElevatorCommandType type, Elevator* elevator) : 
+      _eid{eid}, _type{type}, _elevator{elevator} {};
 
-      // A pure virtual method should prevent an ElevatorCommand object from
-      // being instantiated.
-      virtual bool execute();
+    // A pure virtual method should prevent an ElevatorCommand object from
+    // being instantiated.
+    virtual std::ostringstream& execute();
 
     // Elevator ID (eid) getter.
-    const std::string& eid() const { return _eid; }
+    // const std::string& eid() const { return _eid; }
 
     // Elevator Command Type getter.
-    const ElevatorCommandType& type() const { return _type; }
+    // const ElevatorCommandType& type() const { return _type; }
 
-    // Elevator getter (a const pointer to a const Elevator)
-    const Elevator* const elevator() const { return _elevator; }
+    // Elevator getter (a const pointer to Elevator)
+    Elevator* const elevator() { return _elevator; }
 
 };
 
-class ElevatorStatusCommand : protected ElevatorCommand {
+class ElevatorStatusCommand : ElevatorCommand {
   public:
-    ElevatorStatusCommand(std::string& eid, Elevator* elevator) :
+    ElevatorStatusCommand(std::string eid, Elevator* elevator) :
       ElevatorCommand(eid, ElevatorCommandType::STATUS, elevator) {}
     
-    bool execute() {
-      std::string& result = this->elevator().status();
-      std::cout << result; }
+    std::ostringstream& execute() { return this->elevator()->status(); }
 };
 
-class ElevatorCallCommand : protected ElevatorCommand {
+class ElevatorCallCommand : ElevatorCommand {
   public:
-    ElevatorCallCommand(std::string& eid, Elevator* elevator) :
-      ElevatorCommand(eid, ElevatorCommandType::CALL, elevator) {}
+    ElevatorCallCommand(std::string eid, Elevator* elevator, std::string& destination) :
+      _destination{destination}, ElevatorCommand(eid, ElevatorCommandType::CALL, elevator) {}
     
-    bool execute() { this->elevator().call(); }
+    std::ostringstream& execute() { return this->elevator()->call(_destination); }
+
+  private:
+    std::string _destination;
 };

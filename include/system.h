@@ -13,6 +13,7 @@
 #include "elevator.h"
 #include "message.h"
 
+#include <map>
 #include <queue>
 #include <string>
 #include <unordered_map>
@@ -35,6 +36,12 @@ class ElevatorSystem
     void run();
 
     // Getters
+    const std::unordered_map<std::string, Elevator>& const elevators() const {
+      return _elevators;
+    }
+    const std::map<std::string, Floor>& floors() const { return _floors; }
+
+    // Utility functions
     Floor str_to_floor(std::string& floor) { return _floors.at(floor); }
 
   private:
@@ -58,3 +65,9 @@ class ElevatorSystem
       {"P", Floor::P}
     };
 };
+
+// Cannot extend the << operator as a member-function of a class - it has to be
+// a seperate function. The implementation of this function MUST be in
+// entity.cpp otherwise I'll get a "multiple definition of operator<<" error
+// because the implementation gets included in multiple translation units.
+std::ostream& operator<<(std::ostream& stream, const ElevatorSystem::Floor& floor);
