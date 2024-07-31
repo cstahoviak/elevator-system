@@ -13,6 +13,9 @@
 
 // #include "elevator.h"
 
+// Forward declarations
+class Elevator;
+
 #include <iostream>
 #include <string>
 
@@ -53,7 +56,7 @@ class ElevatorCommand {
     // Elevator Command Type getter.
     // const ElevatorCommandType& type() const { return _type; }
 
-    // Elevator getter (a const pointer to Elevator)
+    // Elevator getter (a const pointer to an Elevator)
     Elevator* const elevator() { return _elevator; }
 
 };
@@ -63,7 +66,7 @@ class ElevatorStatusCommand : public ElevatorCommand {
     ElevatorStatusCommand(std::string eid, Elevator* elevator) :
       ElevatorCommand(eid, ElevatorCommandType::STATUS, elevator) {}
     
-    std::ostringstream& execute() { return this->elevator()->status(); }
+    std::ostringstream& execute();
 };
 
 class ElevatorCallCommand : public ElevatorCommand {
@@ -71,7 +74,7 @@ class ElevatorCallCommand : public ElevatorCommand {
     ElevatorCallCommand(std::string eid, Elevator* elevator, std::string destination) :
       _destination{destination}, ElevatorCommand(eid, ElevatorCommandType::CALL, elevator) {}
     
-    std::ostringstream& execute() { return this->elevator()->call(_destination); }
+    std::ostringstream& execute();
 
   private:
     std::string _destination;

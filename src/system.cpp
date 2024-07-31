@@ -10,7 +10,6 @@
  */
 
 #include "system.h"
-#include "message.h"
 
 #include <cstdlib>
 #include <iostream>
@@ -18,7 +17,6 @@
 
 /**
  * @brief The public interface to the ElevatorSystem class.
- * 
  */
 void ElevatorSystem::run() {
     while ( true ) {
@@ -35,7 +33,7 @@ void ElevatorSystem::run() {
         // stream >> cmd;
 
         // Add user massage to the system queue (calls the UserMessage ctor)
-        _msgs.emplace(msg);
+        _msgs.emplace(msg, this);
 
         // Add messages to System queue until a "continue" message is received.
       } while( _msgs.back().type() != UserMessageType::CONTINUE );
@@ -48,7 +46,6 @@ void ElevatorSystem::run() {
 
 /**
  * @brief Parse the user message queue.
- * 
  */
 void ElevatorSystem::_parse_message_queue() {
   while ( !_msgs.empty() ) {
@@ -58,22 +55,23 @@ void ElevatorSystem::_parse_message_queue() {
     if ( msg.is_valid() ) {
       // If ADD command, add elevator to system.
       if ( msg.type() == UserMessageType::ADD ) {
-        // Assume that the first element of thr args vector is the max weight
+        // TODO: Is there a better way to pass the map key and eid to tr_emplace?
+        std::string eid = msg.eid();
+        // Assume that the first element of the args vector is the max weight
         const auto& pair = _elevators.try_emplace(
-          msg.eid(), std::stod(msg.args()[0]), this);
+          eid, eid, std::stod(msg.args()[0]));
         std::cout << (pair.second ? "-> success.\n" : "-> failure.\n");
       }
-
-      if ( _elevators.find(msg.eid()) != _elevators.end() ) {
+      else if ( _elevators.find(msg.eid()) != _elevators.end() ) {
         // If valid, and elevator ID matches an existing elevator, create
         // ElevatorCommand from the user message.
         std::unique_ptr<ElevatorCommand> cmd = 
-          msg.create_command(&_elevators[msg.eid()]);
+          msg.create_command(&_elevators.at(msg.eid()));
 
         if ( cmd.get() ) {
           // If the command is valid (not nullptr), dispatch the command to the
           // elevator.
-          _elevators[msg.eid()].add_command(std::move(cmd));
+          _elevators.at(msg.eid()).add_command(std::move(cmd));
         }
       }
     }
@@ -96,57 +94,4 @@ void ElevatorSystem::_task_manager() {
   for (auto& [eid, elevator] : _elevators) {
     elevator.task_manager();
   }
-}
-
-/**
- * @brief Overloads the string stream operator for an ElevatorSystem::Floor obj.
- * 
- * Takes a ostream reference and returns an ostream reference. Passing and
- * returning by value will cause errors.
- * 
- * @param stream 
- * @param floor 
- * @return std::ostream& 
- */
-std::ostream& operator<<(std::ostream& stream, const ElevatorSystem::Floor& floor)
-{
-  switch ( floor ) {
-    case (ElevatorSystem::Floor::B2):
-      stream << "B2";
-      break;
-
-    case (ElevatorSystem::Floor::B1):
-      stream << "B1";
-      break;
-
-    case (ElevatorSystem::Floor::UB):
-      stream << "UB";
-      break;
-
-    case (ElevatorSystem::Floor::L):
-      stream << "L";
-      break;
-
-    case (ElevatorSystem::Floor::ONE):
-      stream << "ONE";
-      break;
-
-    case (ElevatorSystem::Floor::TWO):
-      stream << "TWO";
-      break;
-
-    case (ElevatorSystem::Floor::THREE):
-      stream << "THREE";
-      break;
-
-    case (ElevatorSystem::Floor::P):
-      stream << "P";
-      break;
-    
-    default:
-      stream << "invalid floor";
-      break;
-  }
-
-  return stream;
 }

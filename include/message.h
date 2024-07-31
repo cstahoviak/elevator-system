@@ -10,16 +10,15 @@
  * 
  */
 
-#include "elevator.h"
-#include "system.h"
+#include "command.h"
 
 #include <memory>
-#include <optional>
-#include <string>
+// #include <string>
 #include <vector>
 
-// Forward-declare some classes
-class ElevatorCommand;
+// Forward declarations (for non-owning pointers)
+class ElevatorSystem;
+class Elevator;
 
 /**
  * @brief
@@ -70,5 +69,4 @@ class UserMessage
 
     // Determines if the message is valid (called by the ctor)
     bool _validate_message();
-
 };

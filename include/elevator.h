@@ -11,7 +11,8 @@
  * 
  */
 
-// #include "system.h"
+#include "command.h"
+#include "floor.h"
 
 #include <chrono>
 #include <map>
@@ -19,21 +20,9 @@
 #include <queue>
 #include <string>
 
-// Forward-declare some classes
-// class ElevatorSystem {
-//   public:
-//     enum class Floor {
-//       B2,   // basement 2
-//       B1,   // basement 1
-//       UB,   // not sure what this is supposed to stand for
-//       L,    // lobby
-//       ONE,
-//       TWO,
-//       THREE,
-//       P     // penthouse
-//     };
-// };
-class ElevatorCommand;
+// Forward declarations
+// class ElevatorSystem;
+
 
 class Elevator
 {
@@ -45,34 +34,38 @@ class Elevator
     };
     
     // Elevator constructor
-    Elevator(std::string id, double max_weight, ElevatorSystem* system) : 
-      _id(id), _max_weight(max_weight), _system(system) {}
+    Elevator(std::string& id, double max_weight) : 
+      _id(id), _max_weight(max_weight) {}
 
     // The essential functions of an elevator (both return a result string)
     std::ostringstream& status();
     std::ostringstream& call(std::string& destination);
 
-    void add_command(std::unique_ptr<ElevatorCommand> cmd) { _commands.push(cmd); };
+    void add_command(std::unique_ptr<ElevatorCommand> cmd);
     void task_manager();
 
     // Getters
-    const ElevatorSystem::Floor& current_floor() const { return _current_floor; }
-    const ElevatorSystem::Floor& destination_floor() const { return _destination_floor; }
+    const Floors::Name& current_floor() const { return _current_floor; }
+    const Floors::Name& destination_floor() const { return _destination_floor; }
+    // const std::map<std::string, Floors::Name>& floors() const { return _floors.floors(); }
 
     std::map<Status, std::string> status_to_str {
       {Status::MOVING_UP, "moving-up"},
       {Status::MOVING_DOWN, "moving-down"},
       {Status::STATIONARY, "stationary"},
-      };
+    };
   
   private:
     std::string _id;
     double _max_weight;
     double _current_weight;
 
+    // Store the floors of the elevator system
+    Floors _floors;
+
     // All elevators start at the lowest level.
-    ElevatorSystem::Floor _current_floor{ElevatorSystem::Floor::B2};
-    ElevatorSystem::Floor _destination_floor;
+    Floors::Name _current_floor{Floors::Name::B2};
+    Floors::Name _destination_floor;
     Status _status{Status::STATIONARY};
     bool _status_stale = true;
 
@@ -81,10 +74,6 @@ class Elevator
 
     // Store a queue of current commands (FIFO)
     std::queue<std::unique_ptr<ElevatorCommand>> _commands;
-
-    // Store a non-owning reference to the System (TODO: make std:weak_ptr)
-    // TODO: Do I actually need this (not actually using it yet)?
-    ElevatorSystem* _system;
 
     void _update_status();
 };

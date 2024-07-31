@@ -9,8 +9,8 @@
  * 
  */
 
-#include "command.h"
 #include "message.h"
+#include "system.h"
 
 #include <iostream>
 #include <sstream>
@@ -68,8 +68,8 @@ UserMessage::UserMessage(std::string msg, ElevatorSystem* system) :
  */
 std::unique_ptr<ElevatorCommand> UserMessage::create_command(Elevator* elevator) const
 {
-  std::unique_ptr<ElevatorCommand> cmd =
-    std::make_unique<ElevatorCommand>(nullptr);
+  std::unique_ptr<ElevatorCommand> cmd = nullptr;
+    //std::make_unique<ElevatorCommand>(nullptr);
   switch ( _type )
   {
   case ( UserMessageType::ADD ):
@@ -106,8 +106,14 @@ std::unique_ptr<ElevatorCommand> UserMessage::create_command(Elevator* elevator)
 }
 
 bool UserMessage::_validate_message() {
-  bool valid_msg = false;
+  // When used inside a scope block, static ensures that a variable will persist
+  // between function calls.
+  static Floors floors;
 
+  bool valid_msg = false;
+  bool valid_args = false;
+  bool valid_elevator = false;
+  bool valid_floor = false;
   switch ( _type )
   {
     case ( UserMessageType::ADD ):
@@ -120,25 +126,24 @@ bool UserMessage::_validate_message() {
 
     case ( UserMessageType::CALL ):
       // Require two aruguments (an elevator and a floor)
-      bool valid_args = _args.size() == 2;
+      valid_args = _args.size() == 2;
 
       // Require that elevator exists (note, we expect _eid == _args[0])
-      bool valid_elevator = 
+      valid_elevator = 
         _system->elevators().find(_args[0]) != _system->elevators().end();
 
       // Require that the called-to floor exists
-      bool valid_floor =
-        _system->floors().find(_args[1]) != _system->floors().end();
+      valid_floor = floors.floors().find(_args[1]) != floors.floors().end();
 
       valid_msg = valid_args && valid_elevator && valid_floor;
       break;
 
     case ( UserMessageType::STATUS ):
       // Require a single arugument (a valid elevator)
-      bool valid_args = _args.size() == 1;
+      valid_args = _args.size() == 1;
 
       // Require that the elevator exists
-      bool valid_elevator = 
+      valid_elevator = 
         _system->elevators().find(_args[0]) != _system->elevators().end();
 
       valid_msg == valid_args && valid_elevator;
@@ -146,20 +151,16 @@ bool UserMessage::_validate_message() {
 
     case ( UserMessageType::ENTER ):
       // "enter" command not implemented yet.
-      valid_msg = false;
       break;
 
     case ( UserMessageType::EXIT ):
       // "exit" command not implemented yet.
-      valid_msg = false;
       break;
 
     case ( UserMessageType::CONTINUE ):
-      valid_msg = true;
       break;
     
     default:
-      valid_msg = false;
       break;
   }
 
