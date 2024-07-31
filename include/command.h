@@ -11,12 +11,9 @@
  * 
  */
 
-// #include "elevator.h"
-
 // Forward declarations
 class Elevator;
 
-#include <iostream>
 #include <string>
 
 // TODO: Maybe place the elevator commands within the Elevator:: namespace?
@@ -48,7 +45,7 @@ class ElevatorCommand {
 
     // A pure virtual method should prevent an ElevatorCommand object from
     // being instantiated.
-    virtual std::ostringstream& execute();
+    virtual std::tuple<bool, std::string> execute() = 0;
 
     // Elevator ID (eid) getter.
     // const std::string& eid() const { return _eid; }
@@ -66,7 +63,7 @@ class ElevatorStatusCommand : public ElevatorCommand {
     ElevatorStatusCommand(std::string eid, Elevator* elevator) :
       ElevatorCommand(eid, ElevatorCommandType::STATUS, elevator) {}
     
-    std::ostringstream& execute();
+    std::tuple<bool, std::string> execute();
 };
 
 class ElevatorCallCommand : public ElevatorCommand {
@@ -74,7 +71,7 @@ class ElevatorCallCommand : public ElevatorCommand {
     ElevatorCallCommand(std::string eid, Elevator* elevator, std::string destination) :
       _destination{destination}, ElevatorCommand(eid, ElevatorCommandType::CALL, elevator) {}
     
-    std::ostringstream& execute();
+    std::tuple<bool, std::string> execute();
 
   private:
     std::string _destination;

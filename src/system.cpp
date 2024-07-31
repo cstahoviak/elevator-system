@@ -19,6 +19,8 @@
  * @brief The public interface to the ElevatorSystem class.
  */
 void ElevatorSystem::run() {
+    _show_instructions();
+
     while ( true ) {
       // Store the full user message and the command keyword
         std::string msg{""}, cmd{""};
@@ -27,10 +29,6 @@ void ElevatorSystem::run() {
         // Get a new line of input from the user
         std::cout << "User Input: ";
         std::getline(std::cin, msg);
-
-        // Convert to stream and pull the first word off the input stream
-        // std::istringstream stream(msg);
-        // stream >> cmd;
 
         // Add user massage to the system queue (calls the UserMessage ctor)
         _msgs.emplace(msg, this);
@@ -94,4 +92,8 @@ void ElevatorSystem::_task_manager() {
   for (auto& [eid, elevator] : _elevators) {
     elevator.task_manager();
   }
+}
+
+void ElevatorSystem::_show_instructions() {
+  
 }

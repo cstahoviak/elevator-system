@@ -24,10 +24,12 @@
 #include <string>
 #include <unordered_map>
 
-// Forward-delcare some classes.
-// class Elevator;
-class UserMessage;
-
+/**
+ * @brief The elevator system class. This serves as the top-level entity of our
+ * system.
+ * 
+ * TODO: Should this class be a singleton?
+ */
 class ElevatorSystem
 {
   public:
@@ -35,6 +37,8 @@ class ElevatorSystem
     void run();
 
     // Getters
+    // TODO: Should this be const? See link below on C++ getters and setters
+    // https://stackoverflow.com/questions/51615363/how-to-write-c-getters-and-setters
     const std::unordered_map<std::string, Elevator>& elevators() {
       return _elevators;
     }
@@ -47,4 +51,5 @@ class ElevatorSystem
 
     void _parse_message_queue();
     void _task_manager();
+    void _show_instructions();
 };

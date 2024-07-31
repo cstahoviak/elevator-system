@@ -37,9 +37,10 @@ class Elevator
     Elevator(std::string& id, double max_weight) : 
       _id(id), _max_weight(max_weight) {}
 
-    // The essential functions of an elevator (both return a result string)
-    std::ostringstream& status();
-    std::ostringstream& call(std::string& destination);
+    // The essential functions of an elevator (both return a result bool and a
+    // result string)
+    std::tuple<bool, std::string> status();
+    std::tuple<bool, std::string> call(std::string& destination);
 
     void add_command(std::unique_ptr<ElevatorCommand> cmd);
     void task_manager();
@@ -47,9 +48,8 @@ class Elevator
     // Getters
     const Floors::Name& current_floor() const { return _current_floor; }
     const Floors::Name& destination_floor() const { return _destination_floor; }
-    // const std::map<std::string, Floors::Name>& floors() const { return _floors.floors(); }
 
-    std::map<Status, std::string> status_to_str {
+    const std::map<Status, std::string> status_to_str {
       {Status::MOVING_UP, "moving-up"},
       {Status::MOVING_DOWN, "moving-down"},
       {Status::STATIONARY, "stationary"},

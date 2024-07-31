@@ -18,12 +18,12 @@
 void Elevator::task_manager() {
   // Execute all elevator tasks in the queue
   while ( !_commands.empty() ) {
-    // Get the first command (explicityly move the pointer out of the queue)
+    // Get the first command (explicityly move the unique_ptr out of the queue)
     std::unique_ptr<ElevatorCommand> cmd = std::move(_commands.front());
 
-    // Execute the command
-    std::ostringstream& result = cmd.get()->execute();
-    std::cout << result.str();
+    // Execute the command and display the result string
+    auto [success, result_str] = cmd.get()->execute();
+    std::cout << result_str;
 
     // Remove the command from the front of the queue.
     // NOTE: After the move, the top element in the queue is a unique_ptr equal
@@ -49,7 +49,7 @@ void Elevator::add_command(std::unique_ptr<ElevatorCommand> cmd) {
   _commands.push(std::move(cmd));
 }
 
-std::ostringstream& Elevator::status() {
+std::tuple<bool, std::string> Elevator::status() {
   // Update the elevator's status if it's stale
   if ( _status_stale ) {
     _update_status();
@@ -57,36 +57,37 @@ std::ostringstream& Elevator::status() {
 
   // Display the elevator status.
   std::ostringstream result;
+  result << status_to_str.at(_status);
   switch ( _status ) {
     case Status::MOVING_UP:
-      // TODO: Cannot convert Floor enum to string
-      result << "moving-up " << _current_floor << " " << _destination_floor 
-        << " " <<  _current_weight;
+      result << " " << _current_floor << " " << _destination_floor << " "
+        <<  _current_weight;
       
     case Status::MOVING_DOWN:
-      result << "moving-down " << _current_floor << " " << _destination_floor
-        << " " << _current_weight;
+      result << "" << _current_floor << " " << _destination_floor << " "
+        << _current_weight;
 
     case Status::STATIONARY:
-      result << "stationary " << _current_floor;
+      result << "" << _current_floor;
 
     default:
       break;
   }
 
-  return result;
+  return {true, result.str()};
 }
 
-std::ostringstream& Elevator::call(std::string& destination) {
+std::tuple<bool, std::string> Elevator::call(std::string& destination) {
+  bool success = false;
+  std::ostringstream result;
+
   // Convert the destination string to a floor
   Floors::Name destination_floor = _floors.str_to_floor(destination);
-
-  std::ostringstream result;
 
   if ( destination_floor == _current_floor ) {
     // Do nothing - the elevator is already on the floor it's been called to
     result << "-> success\n";
-    return result;
+    return {true, result.str()};
   }
 
   // Compute the distance between floors
@@ -132,6 +133,7 @@ std::ostringstream& Elevator::call(std::string& destination) {
         break;
     }
 
+    success = true;
     result << "-> success\n";
   }
   else {
@@ -143,5 +145,5 @@ std::ostringstream& Elevator::call(std::string& destination) {
   // Set the elevator's status to stale.
   _status_stale = true;
 
-  return result;
+  return {success, result.str()};
 }

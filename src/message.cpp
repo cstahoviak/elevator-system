@@ -106,14 +106,17 @@ std::unique_ptr<ElevatorCommand> UserMessage::create_command(Elevator* elevator)
 }
 
 bool UserMessage::_validate_message() {
-  // When used inside a scope block, static ensures that a variable will persist
-  // between function calls.
+  // When used inside of a scope block, static ensures that a variable will
+  // persist between function calls.
   static Floors floors;
 
+  // NOTE: Cannot redeclare variables of the same name and type in multiple
+  // switch blocks. Need to create them outside of the switch block.
   bool valid_msg = false;
   bool valid_args = false;
   bool valid_elevator = false;
   bool valid_floor = false;
+
   switch ( _type )
   {
     case ( UserMessageType::ADD ):
@@ -158,6 +161,7 @@ bool UserMessage::_validate_message() {
       break;
 
     case ( UserMessageType::CONTINUE ):
+    valid_msg = true;
       break;
     
     default:

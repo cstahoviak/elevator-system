@@ -12,10 +12,10 @@
 #include "command.h"
 #include "elevator.h"
 
-std::ostringstream& ElevatorStatusCommand::execute() {
+std::tuple<bool, std::string> ElevatorStatusCommand::execute() {
   return this->elevator()->status();
 }
 
-std::ostringstream& ElevatorCallCommand::execute() {
+std::tuple<bool, std::string> ElevatorCallCommand::execute() {
   return this->elevator()->call(_destination);
 }
