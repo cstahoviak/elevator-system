@@ -11,6 +11,8 @@
  * 
  */
 
+#include "message.h"
+
 // Forward declarations
 class Elevator;
 
@@ -33,6 +35,8 @@ enum class ElevatorCommandType {
  */
 class ElevatorCommand {
   private:
+    // Store the UserMessage that the command was created from
+    UserMessage _msg;
     std::string _eid{""};
     ElevatorCommandType _type;
 
@@ -40,18 +44,15 @@ class ElevatorCommand {
     Elevator* _elevator;
 
   public:
-    ElevatorCommand(std::string eid, ElevatorCommandType type, Elevator* elevator) : 
-      _eid{eid}, _type{type}, _elevator{elevator} {};
+    ElevatorCommand(std::string eid, ElevatorCommandType type, UserMessage msg, Elevator* elevator) : 
+      _eid{eid}, _type{type}, _msg{msg}, _elevator{elevator} {};
 
     // A pure virtual method should prevent an ElevatorCommand object from
     // being instantiated.
     virtual std::tuple<bool, std::string> execute() = 0;
 
-    // Elevator ID (eid) getter.
-    // const std::string& eid() const { return _eid; }
-
-    // Elevator Command Type getter.
-    // const ElevatorCommandType& type() const { return _type; }
+    // Getters
+    const std::string& msg() const { return _msg.msg(); }
 
     // Elevator getter (a const pointer to an Elevator)
     Elevator* const elevator() { return _elevator; }
@@ -60,16 +61,16 @@ class ElevatorCommand {
 
 class ElevatorStatusCommand : public ElevatorCommand {
   public:
-    ElevatorStatusCommand(std::string eid, Elevator* elevator) :
-      ElevatorCommand(eid, ElevatorCommandType::STATUS, elevator) {}
+    ElevatorStatusCommand(std::string eid, UserMessage msg, Elevator* elevator) :
+      ElevatorCommand(eid, ElevatorCommandType::STATUS, msg, elevator) {}
     
     std::tuple<bool, std::string> execute();
 };
 
 class ElevatorCallCommand : public ElevatorCommand {
   public:
-    ElevatorCallCommand(std::string eid, Elevator* elevator, std::string destination) :
-      _destination{destination}, ElevatorCommand(eid, ElevatorCommandType::CALL, elevator) {}
+    ElevatorCallCommand(std::string eid, UserMessage msg, Elevator* elevator, std::string destination) :
+      _destination{destination}, ElevatorCommand(eid, ElevatorCommandType::CALL, msg, elevator) {}
     
     std::tuple<bool, std::string> execute();
 

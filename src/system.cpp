@@ -30,15 +30,17 @@ void ElevatorSystem::run() {
         std::cout << "User Input: ";
         std::getline(std::cin, msg);
 
-        // Add user massage to the system queue (calls the UserMessage ctor)
+        // Add user message to the system queue (calls the UserMessage ctor)
         _msgs.emplace(msg, this);
 
         // Add messages to System queue until a "continue" message is received.
       } while( _msgs.back().type() != UserMessageType::CONTINUE );
+
       std::cout << "\n";
 
     // Route valid massages to individual elevators via the "task manager".
     _task_manager();
+    std::cout << "\n";
   }
 }
 
@@ -58,7 +60,8 @@ void ElevatorSystem::_parse_message_queue() {
         // Assume that the first element of the args vector is the max weight
         const auto& pair = _elevators.try_emplace(
           eid, eid, std::stod(msg.args()[0]));
-        std::cout << (pair.second ? "-> success.\n" : "-> failure.\n");
+        std::cout << msg.msg() << 
+          (pair.second ? "-> success.\n" : "-> failure.\n");
       }
       else if ( _elevators.find(msg.eid()) != _elevators.end() ) {
         // If valid, and elevator ID matches an existing elevator, create
@@ -75,7 +78,7 @@ void ElevatorSystem::_parse_message_queue() {
     }
     else {
       // An invalid command was added to the System message queue.
-      std::cout << " -> failure.\n";
+      std::cout << msg.msg() <<  " -> failure.\n";
     }
 
     // Dequeue the message.
@@ -95,5 +98,26 @@ void ElevatorSystem::_task_manager() {
 }
 
 void ElevatorSystem::_show_instructions() {
-  
+  std::ostringstream out;
+
+  out << "The Elevator System Application.\n" <<
+    "\nValid commands are:\n" <<
+    "\tadd <elevator-id> <max-weight-kgs>\n" <<
+    "\tstatus <elevator-id>\n" <<
+    "\tcall <elevator-id> <floor>\n" <<
+    "\tcontinue\n" <<
+    "\nNote that one or more 'add' commands must first be followed by a\n" <<
+    "'continue' command before 'status' or 'call' commands can be issued\n" <<
+    "for the added elevators.\n" <<
+    "\nExample:\n" <<
+    "\tadd E1 125\n" <<
+    "\tcontinue\n" <<
+    "\tstatus E1\n" <<
+    "\tcall E1 ONE\n" <<
+    "\tcall E1 P\n" <<
+    "\tstatus E1\n" <<
+    "\tstatus E2 (expect to fail)\n"
+    "\tcontinue\n\n";
+
+    std::cout << out.str();
 }

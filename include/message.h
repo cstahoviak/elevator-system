@@ -10,12 +10,12 @@
  * 
  */
 
-#include "command.h"
-
 #include <memory>
+#include <string>
 #include <vector>
 
 // Forward declarations (for non-owning pointers)
+class ElevatorCommand;
 class ElevatorSystem;
 class Elevator;
 
@@ -45,6 +45,7 @@ class UserMessage
     bool is_valid() const { return _is_valid; };
 
     // Getters
+    const std::string& msg() const { return _msg; }
     const std::string& eid() const { return _eid; }
     const std::vector<std::string>& args() const { return _args; }
     const UserMessageType& type() const { return _type; }
@@ -61,7 +62,7 @@ class UserMessage
     // Is the command valid?
     bool _is_valid{false};
 
-    UserMessageType _type;
+    UserMessageType _type{UserMessageType::INVALID};
 
     // A non-owning reference to the system (TODO: Convert to weak pointer)
     ElevatorSystem* _system;

@@ -9,15 +9,9 @@
  * 
  */
 
-#include "message.h"
 #include "system.h"
 
-#include <iostream>
-
 int main () {
-  std::cout << "The Elevator System Application." << std::endl;
-  std::cout << "Valid commands are: " << std::endl;
-
   ElevatorSystem system;
   system.run();
 }

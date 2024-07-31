@@ -17,38 +17,49 @@
 #include <string>
 
 UserMessage::UserMessage(std::string msg, ElevatorSystem* system) :
-    _msg(msg), _system(system)
+    _msg{msg}, _system{system}
 {
   // Extract the "command", "eid" and command "args" from the message
   std::istringstream stream(_msg);
-  std::string args_str;
-  stream >> _cmd >> _eid >> args_str;
 
-  // Unpack args string into vector
-  // TODO: Does this work as expected?
-  std::string arg;
-  while(std::getline(std::stringstream(args_str), arg, ' ')) {
-   _args.push_back(arg);
-  }
+  // Pull off the command from of the user message
+  stream >> _cmd;
 
-  // Define the message type
-  if ( !_cmd.compare("add") ) {
-    _type = UserMessageType::ADD;
-  }
-  else if ( !_cmd.compare("status") ) {
-    _type = UserMessageType::STATUS;
-  }
-  else if ( !_cmd.compare("call") ) {
-    _type = UserMessageType::CALL;
-  }
-  else if ( !_cmd.compare("enter") ) { 
-    _type = UserMessageType::ENTER;
-  }
-  else if ( !_cmd.compare("exit") ) {
-    _type = UserMessageType::EXIT;
+  // Deal the with continue command up front
+  if ( !_cmd.compare("continue") ) {
+    _type = UserMessageType::CONTINUE;
   }
   else {
-    _type = UserMessageType::INVALID;
+    // All valid commands begin with an elevator ID
+    stream >> _eid;
+
+    // Unpack the remaining args into the _args vector
+    std::string arg;
+    while ( stream.rdbuf()->in_avail() ) {
+      // std::getline(stream, arg);
+      stream >> arg;
+      _args.push_back(arg);
+    }
+
+    // Define the message type
+    if ( !_cmd.compare("add") ) {
+      _type = UserMessageType::ADD;
+    }
+    else if ( !_cmd.compare("status") ) {
+      _type = UserMessageType::STATUS;
+    }
+    else if ( !_cmd.compare("call") ) {
+      _type = UserMessageType::CALL;
+    }
+    else if ( !_cmd.compare("enter") ) { 
+      _type = UserMessageType::ENTER;
+    }
+    else if ( !_cmd.compare("exit") ) {
+      _type = UserMessageType::EXIT;
+    }
+    else {
+      _type = UserMessageType::INVALID;
+    }
   }
 
   // Determine if the message is valid, i.e. do the number of args meet the
@@ -69,7 +80,12 @@ UserMessage::UserMessage(std::string msg, ElevatorSystem* system) :
 std::unique_ptr<ElevatorCommand> UserMessage::create_command(Elevator* elevator) const
 {
   std::unique_ptr<ElevatorCommand> cmd = nullptr;
-    //std::make_unique<ElevatorCommand>(nullptr);
+  // The line below throw an "error: invalid new-expression of abstract class 
+  // type ‘ElevatorCommand’. Note: because the following virtual functions are 
+  // pure within ‘ElevatorCommand’" 
+  // std::unique_ptr<ElevatorCommand> cmd = 
+  //   std::make_unique<ElevatorCommand>(nullptr);
+
   switch ( _type )
   {
   case ( UserMessageType::ADD ):
@@ -78,11 +94,11 @@ std::unique_ptr<ElevatorCommand> UserMessage::create_command(Elevator* elevator)
     break;
 
   case ( UserMessageType::STATUS ):
-    cmd = std::make_unique<ElevatorStatusCommand>(_eid, elevator);
+    cmd = std::make_unique<ElevatorStatusCommand>(_eid, *this, elevator);
     break;
 
   case ( UserMessageType::CALL ):
-    cmd = std::make_unique<ElevatorCallCommand>(_eid, elevator, _args[1]);
+    cmd = std::make_unique<ElevatorCallCommand>(_eid, *this, elevator, _args[1]);
     break;
 
   case ( UserMessageType::ENTER ):
@@ -120,36 +136,36 @@ bool UserMessage::_validate_message() {
   switch ( _type )
   {
     case ( UserMessageType::ADD ):
-      // Require only a single string arg for a valid "ADD" command.
+      // Require only a single string arg1 (weight) for a valid "ADD" command.
       valid_msg = _args.size() == 1;
 
       // Note that if the elevator already exists in the system, this is handled
       // by ElevatorSystem::_parse_message_queue.
       break;
 
-    case ( UserMessageType::CALL ):
-      // Require two aruguments (an elevator and a floor)
-      valid_args = _args.size() == 2;
-
-      // Require that elevator exists (note, we expect _eid == _args[0])
-      valid_elevator = 
-        _system->elevators().find(_args[0]) != _system->elevators().end();
-
-      // Require that the called-to floor exists
-      valid_floor = floors.floors().find(_args[1]) != floors.floors().end();
-
-      valid_msg = valid_args && valid_elevator && valid_floor;
-      break;
-
     case ( UserMessageType::STATUS ):
-      // Require a single arugument (a valid elevator)
-      valid_args = _args.size() == 1;
+      // No additional args beyond the elevator ID are required
+      valid_args = _args.size() == 0;
 
       // Require that the elevator exists
       valid_elevator = 
-        _system->elevators().find(_args[0]) != _system->elevators().end();
+        _system->elevators().find(_eid) != _system->elevators().end();
 
-      valid_msg == valid_args && valid_elevator;
+      valid_msg = valid_args && valid_elevator;
+      break;
+
+    case ( UserMessageType::CALL ):
+      // Require only a single arg (a valid floor)
+      valid_args = _args.size() == 1;
+
+      // Require that elevator exists (note, we expect _eid == _args[0])
+      valid_elevator = 
+        _system->elevators().find(_eid) != _system->elevators().end();
+
+      // Require that the called-to floor exists
+      valid_floor = floors.floors().find(_args[0]) != floors.floors().end();
+
+      valid_msg = valid_args && valid_elevator && valid_floor;
       break;
 
     case ( UserMessageType::ENTER ):

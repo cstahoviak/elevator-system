@@ -23,7 +23,7 @@ void Elevator::task_manager() {
 
     // Execute the command and display the result string
     auto [success, result_str] = cmd.get()->execute();
-    std::cout << result_str;
+    std::cout << cmd.get()->msg() << " -> "  << result_str;
 
     // Remove the command from the front of the queue.
     // NOTE: After the move, the top element in the queue is a unique_ptr equal
@@ -64,11 +64,11 @@ std::tuple<bool, std::string> Elevator::status() {
         <<  _current_weight;
       
     case Status::MOVING_DOWN:
-      result << "" << _current_floor << " " << _destination_floor << " "
+      result << " " << _current_floor << " " << _destination_floor << " "
         << _current_weight;
 
     case Status::STATIONARY:
-      result << "" << _current_floor;
+      result << " " << _current_floor;
 
     default:
       break;
