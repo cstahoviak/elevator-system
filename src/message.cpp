@@ -98,7 +98,7 @@ std::unique_ptr<ElevatorCommand> UserMessage::create_command(Elevator* elevator)
     break;
 
   case ( UserMessageType::CALL ):
-    cmd = std::make_unique<ElevatorCallCommand>(_eid, *this, elevator, _args[1]);
+    cmd = std::make_unique<ElevatorCallCommand>(_eid, *this, elevator, _args[0]);
     break;
 
   case ( UserMessageType::ENTER ):
@@ -158,7 +158,7 @@ bool UserMessage::_validate_message() {
       // Require only a single arg (a valid floor)
       valid_args = _args.size() == 1;
 
-      // Require that elevator exists (note, we expect _eid == _args[0])
+      // Require that elevator exists
       valid_elevator = 
         _system->elevators().find(_eid) != _system->elevators().end();
 

@@ -23,7 +23,7 @@ void Elevator::task_manager() {
 
     // Execute the command and display the result string
     auto [success, result_str] = cmd.get()->execute();
-    std::cout << cmd.get()->msg() << " -> "  << result_str;
+    std::cout << cmd.get()->msg() << " -> "  << result_str << std::endl;
 
     // Remove the command from the front of the queue.
     // NOTE: After the move, the top element in the queue is a unique_ptr equal
@@ -43,6 +43,9 @@ void Elevator::_update_status() {
   else {
     _status = Status::MOVING_DOWN;
   }
+
+  // Status has been updated (no longer stale)
+  _status_stale = false;
 }
 
 void Elevator::add_command(std::unique_ptr<ElevatorCommand> cmd) {
@@ -78,21 +81,27 @@ std::tuple<bool, std::string> Elevator::status() {
 }
 
 std::tuple<bool, std::string> Elevator::call(std::string& destination) {
+  // Set the destination floor
+  _destination_floor = _floors.str_to_floor(destination);
+
+  // Update the elevator's status if it's stale
+  if ( _status_stale ) {
+    _update_status();
+  }
+  
+  // Define the return values
   bool success = false;
   std::ostringstream result;
 
-  // Convert the destination string to a floor
-  Floors::Name destination_floor = _floors.str_to_floor(destination);
-
-  if ( destination_floor == _current_floor ) {
+  if ( _destination_floor == _current_floor ) {
     // Do nothing - the elevator is already on the floor it's been called to
-    result << "-> success\n";
+    result << "success.";
     return {true, result.str()};
   }
 
   // Compute the distance between floors
   int current = static_cast<int>(_current_floor);
-  int dest = static_cast<int>(destination_floor);
+  int dest = static_cast<int>(_destination_floor);
   int dist = dest - current;
 
   // Move the elevator to the destination floor
@@ -103,7 +112,10 @@ std::tuple<bool, std::string> Elevator::call(std::string& destination) {
     switch( _status )
     {
       case Status::MOVING_UP:
-        for ( int floor = current; floor < dest; floor++ ) {
+        for ( int floor = current; floor <= dest; floor++ ) {
+          // Moving the elevator causes its status to be come stale
+          _status_stale = true;
+
           // Update the current floor
           _current_floor = Floors::Name{floor};
 
@@ -116,7 +128,10 @@ std::tuple<bool, std::string> Elevator::call(std::string& destination) {
         break;
 
       case Status::MOVING_DOWN:
-        for ( int floor = current; floor > dest; floor-- ) {
+        for ( int floor = current; floor >= dest; floor-- ) {
+            // Moving the elevator causes its status to be come stale
+            _status_stale = true;
+
             // Update the current floor
             _current_floor = Floors::Name{floor};
 
@@ -134,11 +149,11 @@ std::tuple<bool, std::string> Elevator::call(std::string& destination) {
     }
 
     success = true;
-    result << "-> success\n";
+    result << "success.";
   }
   else {
     // The elevator was called to a floor that doesn't exist.
-    result << "-> failure. Elevator called to non-existent floor: "
+    result << ".failure. Elevator called to non-existent floor: "
       << destination;
   }
 

@@ -61,7 +61,7 @@ void ElevatorSystem::_parse_message_queue() {
         const auto& pair = _elevators.try_emplace(
           eid, eid, std::stod(msg.args()[0]));
         std::cout << msg.msg() << 
-          (pair.second ? "-> success.\n" : "-> failure.\n");
+          (pair.second ? " -> success.\n" : " -> failure.\n");
       }
       else if ( _elevators.find(msg.eid()) != _elevators.end() ) {
         // If valid, and elevator ID matches an existing elevator, create
@@ -108,16 +108,19 @@ void ElevatorSystem::_show_instructions() {
     "\tcontinue\n" <<
     "\nNote that one or more 'add' commands must first be followed by a\n" <<
     "'continue' command before 'status' or 'call' commands can be issued\n" <<
-    "for the added elevators.\n" <<
+    "for the added elevator(s).\n" <<
     "\nExample:\n" <<
     "\tadd E1 125\n" <<
     "\tcontinue\n" <<
     "\tstatus E1\n" <<
-    "\tcall E1 ONE\n" <<
+    "\tcall E1 1\n" <<
     "\tcall E1 P\n" <<
     "\tstatus E1\n" <<
     "\tstatus E2 (expect to fail)\n"
-    "\tcontinue\n\n";
+    "\tcontinue\n" <<
+    "\nNote that commands given to the system may not execute in the order\n" <<
+    "in which they're received. Commands are routed to each elevator, and\n" <<
+    "dispatch of those commands is handled asynchronously (TODO).\n\n";
 
     std::cout << out.str();
 }
