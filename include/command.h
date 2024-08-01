@@ -11,12 +11,11 @@
  * 
  */
 
-#include "message.h"
+#include <string>
 
 // Forward declarations
 class Elevator;
 
-#include <string>
 
 // TODO: Maybe place the elevator commands within the Elevator:: namespace?
 enum class ElevatorCommandType {
@@ -34,17 +33,8 @@ enum class ElevatorCommandType {
  * 3. (Maybe) Define a virtual method call "execute" which executes the command.
  */
 class ElevatorCommand {
-  private:
-    // Store the UserMessage that the command was created from
-    UserMessage _msg;
-    std::string _eid{""};
-    ElevatorCommandType _type;
-
-    // A non-owning reference to the elevator (TODO: convert to std::weak_ptr)
-    Elevator* _elevator;
-
   public:
-    ElevatorCommand(std::string eid, ElevatorCommandType type, UserMessage msg, Elevator* elevator) : 
+    ElevatorCommand(std::string eid, ElevatorCommandType type, std::string msg, Elevator* elevator) : 
       _eid{eid}, _type{type}, _msg{msg}, _elevator{elevator} {};
 
     // A pure virtual method should prevent an ElevatorCommand object from
@@ -52,27 +42,35 @@ class ElevatorCommand {
     virtual std::tuple<bool, std::string> execute() = 0;
 
     // Getters
-    const std::string& msg() const { return _msg.msg(); }
+    const std::string& msg() const { return _msg; }
 
     // Elevator getter (a const pointer to an Elevator)
     Elevator* const elevator() { return _elevator; }
 
+  private:
+    // Store the input string that the command was created from
+    std::string _msg{""};
+    std::string _eid{""};
+    ElevatorCommandType _type;
+
+    // A non-owning reference to the elevator (TODO: convert to std::weak_ptr)
+    Elevator* _elevator;
 };
 
 class ElevatorStatusCommand : public ElevatorCommand {
   public:
-    ElevatorStatusCommand(std::string eid, UserMessage msg, Elevator* elevator) :
+    ElevatorStatusCommand(std::string eid, std::string msg, Elevator* elevator) :
       ElevatorCommand(eid, ElevatorCommandType::STATUS, msg, elevator) {}
     
-    std::tuple<bool, std::string> execute();
+    std::tuple<bool, std::string> execute() override;
 };
 
 class ElevatorCallCommand : public ElevatorCommand {
   public:
-    ElevatorCallCommand(std::string eid, UserMessage msg, Elevator* elevator, std::string destination) :
+    ElevatorCallCommand(std::string eid, std::string msg, Elevator* elevator, std::string destination) :
       _destination{destination}, ElevatorCommand(eid, ElevatorCommandType::CALL, msg, elevator) {}
     
-    std::tuple<bool, std::string> execute();
+    std::tuple<bool, std::string> execute() override;
 
   private:
     std::string _destination;

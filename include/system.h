@@ -42,12 +42,15 @@ class ElevatorSystem
     const std::unordered_map<std::string, Elevator>& elevators() {
       return _elevators;
     }
+    const Floors& floors() const { return _floors; }
 
   private:
     // Store a queue of input messages from the user (FIFO)
     std::queue<UserMessage> _msgs;
     // TODO: Maybe the value should be a unique pointer instead of an Elevator obj?
     std::unordered_map<std::string, Elevator> _elevators;
+    // Store a Floors instance
+    const Floors _floors;
 
     void _parse_message_queue();
     void _task_manager();

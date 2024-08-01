@@ -21,7 +21,7 @@
 #include <string>
 
 // Forward declarations
-// class ElevatorSystem;
+class ElevatorSystem;
 
 
 class Elevator
@@ -34,8 +34,8 @@ class Elevator
     };
     
     // Elevator constructor
-    Elevator(std::string& id, double max_weight) : 
-      _id(id), _max_weight(max_weight) {}
+    Elevator(std::string& id, double max_weight, ElevatorSystem* system) : 
+      _id(id), _max_weight(max_weight), _system(system) {}
 
     // The essential functions of an elevator (both return a result bool and a
     // result string)
@@ -60,20 +60,20 @@ class Elevator
     double _max_weight;
     double _current_weight;
 
-    // Store the floors of the elevator system
-    Floors _floors;
-
     // All elevators start at the lowest level.
     Floors::Name _current_floor{Floors::Name::B2};
     Floors::Name _destination_floor;
     Status _status{Status::STATIONARY};
     bool _status_stale = true;
 
-    // How long (in ms) it takes an elevator to traverse a single floor.
-    std::chrono::milliseconds _floor_traverse_time_ms{1000};
-
     // Store a queue of current commands (FIFO)
     std::queue<std::unique_ptr<ElevatorCommand>> _commands;
+
+    // Store a non-owning reference to the system
+    ElevatorSystem* _system;
+
+        // How long (in ms) it takes an elevator to traverse a single floor.
+    std::chrono::milliseconds _floor_traverse_time_ms{1000};
 
     void _update_status();
 };

@@ -94,11 +94,11 @@ std::unique_ptr<ElevatorCommand> UserMessage::create_command(Elevator* elevator)
     break;
 
   case ( UserMessageType::STATUS ):
-    cmd = std::make_unique<ElevatorStatusCommand>(_eid, *this, elevator);
+    cmd = std::make_unique<ElevatorStatusCommand>(_eid, _msg, elevator);
     break;
 
   case ( UserMessageType::CALL ):
-    cmd = std::make_unique<ElevatorCallCommand>(_eid, *this, elevator, _args[0]);
+    cmd = std::make_unique<ElevatorCallCommand>(_eid, _msg, elevator, _args[0]);
     break;
 
   case ( UserMessageType::ENTER ):
@@ -122,10 +122,6 @@ std::unique_ptr<ElevatorCommand> UserMessage::create_command(Elevator* elevator)
 }
 
 bool UserMessage::_validate_message() {
-  // When used inside of a scope block, static ensures that a variable will
-  // persist between function calls.
-  static Floors floors;
-
   // NOTE: Cannot redeclare variables of the same name and type in multiple
   // switch blocks. Need to create them outside of the switch block.
   bool valid_msg = false;
@@ -158,12 +154,13 @@ bool UserMessage::_validate_message() {
       // Require only a single arg (a valid floor)
       valid_args = _args.size() == 1;
 
-      // Require that elevator exists
+      // Require that the elevator exists
       valid_elevator = 
         _system->elevators().find(_eid) != _system->elevators().end();
 
       // Require that the called-to floor exists
-      valid_floor = floors.floors().find(_args[0]) != floors.floors().end();
+      valid_floor = 
+        _system->floors().names().find(_args[0]) != _system->floors().names().end();
 
       valid_msg = valid_args && valid_elevator && valid_floor;
       break;

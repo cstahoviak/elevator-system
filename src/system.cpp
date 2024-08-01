@@ -59,7 +59,7 @@ void ElevatorSystem::_parse_message_queue() {
         std::string eid = msg.eid();
         // Assume that the first element of the args vector is the max weight
         const auto& pair = _elevators.try_emplace(
-          eid, eid, std::stod(msg.args()[0]));
+          eid, eid, std::stod(msg.args()[0]), this);
         std::cout << msg.msg() << 
           (pair.second ? " -> success.\n" : " -> failure.\n");
       }

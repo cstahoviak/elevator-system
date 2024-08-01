@@ -10,6 +10,7 @@
  */
 
 #include "elevator.h"
+#include "system.h"
 
 #include <iostream>
 #include <sstream>
@@ -82,7 +83,7 @@ std::tuple<bool, std::string> Elevator::status() {
 
 std::tuple<bool, std::string> Elevator::call(std::string& destination) {
   // Set the destination floor
-  _destination_floor = _floors.str_to_floor(destination);
+  _destination_floor = _system->floors().str_to_floor(destination);
 
   // Update the elevator's status if it's stale
   if ( _status_stale ) {
@@ -107,7 +108,7 @@ std::tuple<bool, std::string> Elevator::call(std::string& destination) {
   // Move the elevator to the destination floor
   // TODO: This check may not be necessary if the UserMessage already validates
   // that the floor must exist for a valid "CALL" command to be issued.
-  if ( _floors.floors().find(destination) != _floors.floors().end() )
+  if ( _system->floors().names().find(destination) != _system->floors().names().end() )
   {
     switch( _status )
     {

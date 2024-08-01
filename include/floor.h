@@ -28,14 +28,16 @@ class Floors
     };
 
     // Getters
-    const std::map<std::string, Floors::Name>& floors() const { return _floors; }
+    const std::map<std::string, Floors::Name>& names() const { return _names; }
 
     // Utility Function
-    Floors::Name str_to_floor(std::string& floor) { return _floors[floor]; }
+    Floors::Name str_to_floor(std::string& floor) const {
+      return _names.at(floor);
+    }
 
   private:
     // Store a mapping between floors as strings and floor as Floors
-    std::map<std::string, Floors::Name> _floors {
+    std::map<std::string, Floors::Name> _names {
       {"B2", Floors::Name::B2},
       {"B1", Floors::Name::B1},
       {"UB", Floors::Name::UB},
@@ -46,9 +48,6 @@ class Floors
       {"P", Floors::Name::P}
     };
 };
-
-// Utility function
-// friend Floors::Name str_to_floor(std::string& floor);
   
 // Cannot extend the << operator as a member-function of a class - it has to be
 // a seperate function. The implementation of this function MUST be in
