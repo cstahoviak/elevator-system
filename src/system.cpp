@@ -100,11 +100,11 @@ void ElevatorSystem::_task_manager() {
     // Dispatch elevators synchronously
     // elevator.task_manager();
 
-    // Dispatch elevators synchronously via std::async
+    // Dispatch elevators asynchronously via std::async
     futures.push_back(
       std::async(std::launch::async, &Elevator::task_manager, &elevator));
 
-    // Dispatch elevators synchronously via std::thread
+    // Dispatch elevators asynchronously via std::thread
     // threads.emplace_back(&Elevator::task_manager, &elevator);
   }
 
@@ -126,6 +126,10 @@ void ElevatorSystem::_show_instructions() {
     "\nNote that one or more 'add' commands must first be followed by a\n" <<
     "'continue' command before 'status' or 'call' commands can be issued\n" <<
     "for the added elevator(s).\n" <<
+    "\nThe Elevator System will accept messages from the user until a\n" <<
+    "'continue' message is received. Once a 'continue' message is\n" <<
+    "received, the Elevator System will dispatch all user messages to the\n" <<
+    "corresponding elevator to be executed.\n"
     "\nExample:\n" <<
     "\tadd E1 125\n" <<
     "\tcontinue\n" <<
@@ -137,7 +141,7 @@ void ElevatorSystem::_show_instructions() {
     "\tcontinue\n" <<
     "\nNote that commands given to the system may not execute in the order\n" <<
     "in which they're received. Commands are routed to each elevator, and\n" <<
-    "dispatch of those commands is handled asynchronously (TODO).\n\n";
+    "dispatch of those commands is handled asynchronously.\n\n";
 
     std::cout << out.str();
 }
