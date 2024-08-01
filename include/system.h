@@ -20,6 +20,7 @@
 #include "message.h"
 
 #include <map>
+#include <mutex>
 #include <queue>
 #include <string>
 #include <unordered_map>
@@ -43,14 +44,18 @@ class ElevatorSystem
       return _elevators;
     }
     const Floors& floors() const { return _floors; }
+    std::mutex& mutex() { return _mutex; } 
 
   private:
-    // Store a queue of input messages from the user (FIFO)
+    // Store a queue of input messages from the user (use as FIFO)
     std::queue<UserMessage> _msgs;
     // TODO: Maybe the value should be a unique pointer instead of an Elevator obj?
     std::unordered_map<std::string, Elevator> _elevators;
     // Store a Floors instance
     const Floors _floors;
+
+    // Mutex used for thread-safe console logging
+    std::mutex _mutex;
 
     void _parse_message_queue();
     void _task_manager();

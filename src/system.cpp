@@ -12,8 +12,11 @@
 #include "system.h"
 
 #include <cstdlib>
+#include <future>
 #include <iostream>
 #include <sstream>
+#include <thread>
+#include <vector>
 
 /**
  * @brief The public interface to the ElevatorSystem class.
@@ -91,10 +94,24 @@ void ElevatorSystem::_task_manager() {
   _parse_message_queue();
 
   // Then, call the task manager for each elevator.
-  // TODO: Parallelize elevator dispatch with std::async
+  std::vector<std::future<void>> futures;
+  // std::vector<std::thread> threads;
   for (auto& [eid, elevator] : _elevators) {
-    elevator.task_manager();
+    // Dispatch elevators synchronously
+    // elevator.task_manager();
+
+    // Dispatch elevators synchronously via std::async
+    futures.push_back(
+      std::async(std::launch::async, &Elevator::task_manager, &elevator));
+
+    // Dispatch elevators synchronously via std::thread
+    // threads.emplace_back(&Elevator::task_manager, &elevator);
   }
+
+  // Join all threads
+  // for (std::thread& thread : threads) {
+  //   thread.join();
+  // }
 }
 
 void ElevatorSystem::_show_instructions() {

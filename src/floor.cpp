@@ -24,35 +24,35 @@
 std::ostream& operator<<(std::ostream& stream, const Floors::Name& floor)
 {
   switch ( floor ) {
-    case (Floors::Name::B2):
+    case Floors::Name::B2:
       stream << "B2";
       break;
 
-    case (Floors::Name::B1):
+    case Floors::Name::B1:
       stream << "B1";
       break;
 
-    case (Floors::Name::UB):
+    case Floors::Name::UB:
       stream << "UB";
       break;
 
-    case (Floors::Name::L):
+    case Floors::Name::L:
       stream << "L";
       break;
 
-    case (Floors::Name::ONE):
-      stream << "ONE";
+    case Floors::Name::ONE:
+      stream << "1";
       break;
 
-    case (Floors::Name::TWO):
-      stream << "TWO";
+    case Floors::Name::TWO:
+      stream << "1";
       break;
 
-    case (Floors::Name::THREE):
-      stream << "THREE";
+    case Floors::Name::THREE:
+      stream << "3";
       break;
 
-    case (Floors::Name::P):
+    case Floors::Name::P:
       stream << "P";
       break;
     

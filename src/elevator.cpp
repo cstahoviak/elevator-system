@@ -13,6 +13,7 @@
 #include "system.h"
 
 #include <iostream>
+#include <mutex>
 #include <sstream>
 #include <thread>     // std::this_thread
 
@@ -24,7 +25,9 @@ void Elevator::task_manager() {
 
     // Execute the command and display the result string
     auto [success, result_str] = cmd.get()->execute();
+    std::unique_lock<std::mutex> lock(_system->mutex());
     std::cout << cmd.get()->msg() << " -> "  << result_str << std::endl;
+    lock.unlock();
 
     // Remove the command from the front of the queue.
     // NOTE: After the move, the top element in the queue is a unique_ptr equal
@@ -85,10 +88,8 @@ std::tuple<bool, std::string> Elevator::call(std::string& destination) {
   // Set the destination floor
   _destination_floor = _system->floors().str_to_floor(destination);
 
-  // Update the elevator's status if it's stale
-  if ( _status_stale ) {
-    _update_status();
-  }
+  // Update the elevator's status since a new destination floor has been set
+  _update_status();
   
   // Define the return values
   bool success = false;
@@ -121,9 +122,11 @@ std::tuple<bool, std::string> Elevator::call(std::string& destination) {
           _current_floor = Floors::Name{floor};
 
           // TODO: Convert Floor to string
-          std::cout << _id << ": " << _current_floor << std::endl; 
+          std::unique_lock<std::mutex> lock(_system->mutex());
+          std::cout << _id << ": " << _current_floor << std::endl;
+          lock.unlock();
 
-          // Traversing a floor will take 1 sec
+          // Sleep while traversing a floor
           std::this_thread::sleep_for(_floor_traverse_time_ms);
         }
         break;
@@ -137,15 +140,20 @@ std::tuple<bool, std::string> Elevator::call(std::string& destination) {
             _current_floor = Floors::Name{floor};
 
             // TODO: Convert Floor to string
-            std::cout << _id << ": " << _current_floor << std::endl; 
+            std::unique_lock<std::mutex> lock(_system->mutex());
+            std::cout << _id << ": " << _current_floor << std::endl;
+            lock.unlock();
 
-            // Traversing a floor will take 1 sec
+            // Sleep while traversing a floor
             std::this_thread::sleep_for(_floor_traverse_time_ms);
           }
         break;
 
       default:
-        std::cout << "Elevator::call error: shouldn't get here." << std::endl; 
+        std::unique_lock<std::mutex> lock(_system->mutex());
+        std::cout << "Elevator::call error (ID: " << _id << 
+          "): shouldn't get here." << std::endl;
+        lock.unlock();
         break;
     }
 

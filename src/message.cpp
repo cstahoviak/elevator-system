@@ -88,28 +88,28 @@ std::unique_ptr<ElevatorCommand> UserMessage::create_command(Elevator* elevator)
 
   switch ( _type )
   {
-  case ( UserMessageType::ADD ):
+  case UserMessageType::ADD:
     std::cout << "Cannot create Elevator command from 'ADD' message."
       << std::endl;
     break;
 
-  case ( UserMessageType::STATUS ):
+  case UserMessageType::STATUS:
     cmd = std::make_unique<ElevatorStatusCommand>(_eid, _msg, elevator);
     break;
 
-  case ( UserMessageType::CALL ):
+  case UserMessageType::CALL:
     cmd = std::make_unique<ElevatorCallCommand>(_eid, _msg, elevator, _args[0]);
     break;
 
-  case ( UserMessageType::ENTER ):
+  case UserMessageType::ENTER:
     // "enter" command not implemented yet.
     break;
 
-  case ( UserMessageType::EXIT ):
+  case UserMessageType::EXIT:
     // "exit" command not implemented yet.
     break;
 
-  case ( UserMessageType::CONTINUE ):
+  case UserMessageType::CONTINUE:
     std::cout << "Cannot create Elevator command from 'CONTINUE' message."
       << std::endl;
     break;
@@ -139,7 +139,7 @@ bool UserMessage::_validate_message() {
       // by ElevatorSystem::_parse_message_queue.
       break;
 
-    case ( UserMessageType::STATUS ):
+    case UserMessageType::STATUS:
       // No additional args beyond the elevator ID are required
       valid_args = _args.size() == 0;
 
@@ -150,7 +150,7 @@ bool UserMessage::_validate_message() {
       valid_msg = valid_args && valid_elevator;
       break;
 
-    case ( UserMessageType::CALL ):
+    case UserMessageType::CALL:
       // Require only a single arg (a valid floor)
       valid_args = _args.size() == 1;
 
@@ -165,15 +165,15 @@ bool UserMessage::_validate_message() {
       valid_msg = valid_args && valid_elevator && valid_floor;
       break;
 
-    case ( UserMessageType::ENTER ):
+    case UserMessageType::ENTER:
       // "enter" command not implemented yet.
       break;
 
-    case ( UserMessageType::EXIT ):
+    case UserMessageType::EXIT:
       // "exit" command not implemented yet.
       break;
 
-    case ( UserMessageType::CONTINUE ):
+    case UserMessageType::CONTINUE:
     valid_msg = true;
       break;
     
