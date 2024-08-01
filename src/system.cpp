@@ -128,7 +128,7 @@ void ElevatorSystem::_show_instructions() {
     "\nThe Elevator System will accept messages from the user until a\n" <<
     "'continue' message is received. Once a 'continue' message is\n" <<
     "received, the Elevator System will dispatch all user messages to the\n" <<
-    "corresponding elevator to be executed.\n"
+    "corresponding elevator for each command to be executed.\n"
     "\nExample:\n" <<
     "\tadd E1 125\n" <<
     "\tcontinue\n" <<
