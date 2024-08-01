@@ -19,10 +19,8 @@
 UserMessage::UserMessage(std::string msg, ElevatorSystem* system) :
     _msg{msg}, _system{system}
 {
-  // Extract the "command", "eid" and command "args" from the message
+  // Pull off the command from the user message
   std::istringstream stream(_msg);
-
-  // Pull off the command from of the user message
   stream >> _cmd;
 
   // Deal the with continue command up front
@@ -30,13 +28,12 @@ UserMessage::UserMessage(std::string msg, ElevatorSystem* system) :
     _type = UserMessageType::CONTINUE;
   }
   else {
-    // All valid commands begin with an elevator ID
+    // All other valid commands begin with an elevator ID
     stream >> _eid;
 
     // Unpack the remaining args into the _args vector
     std::string arg;
     while ( stream.rdbuf()->in_avail() ) {
-      // std::getline(stream, arg);
       stream >> arg;
       _args.push_back(arg);
     }
@@ -174,7 +171,7 @@ bool UserMessage::_validate_message() {
       break;
 
     case UserMessageType::CONTINUE:
-    valid_msg = true;
+      valid_msg = true;
       break;
     
     default:

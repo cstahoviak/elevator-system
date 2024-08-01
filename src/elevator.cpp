@@ -62,7 +62,7 @@ std::tuple<bool, std::string> Elevator::status() {
     _update_status();
   }
 
-  // Display the elevator status.
+  // Display the elevator status
   std::ostringstream result;
   result << status_to_str.at(_status);
   switch ( _status ) {
@@ -120,8 +120,6 @@ std::tuple<bool, std::string> Elevator::call(std::string& destination) {
 
           // Update the current floor
           _current_floor = Floors::Name{floor};
-
-          // TODO: Convert Floor to string
           std::unique_lock<std::mutex> lock(_system->mutex());
           std::cout << _id << ": " << _current_floor << std::endl;
           lock.unlock();
@@ -138,8 +136,6 @@ std::tuple<bool, std::string> Elevator::call(std::string& destination) {
 
             // Update the current floor
             _current_floor = Floors::Name{floor};
-
-            // TODO: Convert Floor to string
             std::unique_lock<std::mutex> lock(_system->mutex());
             std::cout << _id << ": " << _current_floor << std::endl;
             lock.unlock();

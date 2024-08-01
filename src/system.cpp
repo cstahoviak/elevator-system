@@ -56,9 +56,8 @@ void ElevatorSystem::_parse_message_queue() {
     UserMessage& msg = _msgs.front();
 
     if ( msg.is_valid() ) {
-      // If ADD command, add elevator to system.
       if ( msg.type() == UserMessageType::ADD ) {
-        // TODO: Is there a better way to pass the map key and eid to tr_emplace?
+        // If ADD command, add elevator to system
         std::string eid = msg.eid();
         // Assume that the first element of the args vector is the max weight
         const auto& pair = _elevators.try_emplace(
@@ -80,11 +79,11 @@ void ElevatorSystem::_parse_message_queue() {
       }
     }
     else {
-      // An invalid command was added to the System message queue.
+      // An invalid command was added to the System message queue
       std::cout << msg.msg() <<  " -> failure.\n";
     }
 
-    // Dequeue the message.
+    // Dequeue the message
     _msgs.pop();
   }
 }
@@ -93,7 +92,7 @@ void ElevatorSystem::_task_manager() {
   // First, parse the message queue
   _parse_message_queue();
 
-  // Then, call the task manager for each elevator.
+  // Then, call the task manager for each elevator
   std::vector<std::future<void>> futures;
   // std::vector<std::thread> threads;
   for (auto& [eid, elevator] : _elevators) {
