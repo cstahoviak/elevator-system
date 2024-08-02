@@ -33,6 +33,10 @@ class UserMessageTest : public testing::Test
       double max_weight{100};
       const auto& pair = 
         system._elevators.try_emplace(eid, eid, max_weight, &system);
+
+      // Speed up floor traverse time for testing
+      system._elevators.at(eid)._floor_traverse_time_ms =
+        std::chrono::milliseconds{10};
     }
 
     // A UserMessage requires a reference to the system
@@ -101,10 +105,15 @@ TEST_F(UserMessageTest, TestCreateStatusCommand) {
   std::unique_ptr<ElevatorCommand> cmd = 
     msg.create_command(&system._elevators.at(msg.eid()));
   EXPECT_EQ(cmd.get()->_type, ElevatorCommandType::STATUS);
+
+  // Execute the command
+  auto [success, result_str] = cmd.get()->execute();
+  EXPECT_TRUE(success);
+  EXPECT_EQ(result_str, "stationary B2");
 }
 
 TEST_F(UserMessageTest, TestCreateCallCommand) {
-  std::string user_input{"call E0"};
+  std::string user_input{"call E0 P"};
 
   // Create the user message
   UserMessage msg{user_input, &system};
@@ -114,4 +123,9 @@ TEST_F(UserMessageTest, TestCreateCallCommand) {
   std::unique_ptr<ElevatorCommand> cmd = 
     msg.create_command(&system._elevators.at(msg.eid()));
   EXPECT_EQ(cmd.get()->_type, ElevatorCommandType::CALL);
+
+  // Execute the command
+  auto [success, result_str] = cmd.get()->execute();
+  EXPECT_TRUE(success);
+  EXPECT_EQ(result_str, "success.");
 }

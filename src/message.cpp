@@ -157,7 +157,7 @@ bool UserMessage::_validate_message() {
 
       // Require that the called-to floor exists
       valid_floor = 
-        _system->floors().names().find(_args[0]) != _system->floors().names().end();
+        _system->floors().names().find(_args.at(0)) != _system->floors().names().end();
 
       valid_msg = valid_args && valid_elevator && valid_floor;
       break;
