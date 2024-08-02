@@ -14,7 +14,7 @@ The following are notes from the [GoogleTest Primer](https://google.github.io/go
   }
   ```
 
-## Test Fixtures: Using the same data configuration across multiple tests.
+### Test Fixtures: Using the same data configuration across multiple tests.
 If you find yourself writing two or more tests that operate on similar data, you can use a test fixture. This allows you to reuse the same configuration of objects for several different tests.
 
 1. Derive a class from testing::Test
