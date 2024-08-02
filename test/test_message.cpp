@@ -12,8 +12,9 @@
 #include <gtest/gtest.h>
 
 // I don't think this is recommended, but it works for accessing private
-// members of a class for the purpose of unit testing (do this only after
-// including from STL and other dependencies).
+// members of a class for the purpose of unit testing (need to access
+// ElevatorSystem._elevators). Do this only after including from STL and other
+// dependencies).
 #define private public
 
 #include "system.h"
