@@ -16,7 +16,7 @@
 #include <sstream>
 #include <string>
 
-UserMessage::UserMessage(std::string msg, ElevatorSystem* system) :
+UserMessage::UserMessage(std::string& msg, ElevatorSystem* system) :
     _msg{msg}, _system{system}
 {
   // Pull off the command from the user message

@@ -39,7 +39,7 @@ enum class UserMessageType {
 class UserMessage
 {
   public:
-    UserMessage(std::string msg, ElevatorSystem* system);
+    UserMessage(std::string& msg, ElevatorSystem* system);
 
     std::unique_ptr<ElevatorCommand> create_command(Elevator* elevator) const;
     bool is_valid() const { return _is_valid; };

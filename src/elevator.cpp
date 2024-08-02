@@ -120,6 +120,10 @@ std::tuple<bool, std::string> Elevator::call(std::string& destination) {
 
           // Update the current floor
           _current_floor = Floors::Name{floor};
+          // Choose std::unique_lock here over std::lock_guard because
+          // std::unique_lock can be unlocked manually, while std::lock_guard
+          // only unlocks when it goes out of scope. And we only care about
+          // locking access to terminal output.
           std::unique_lock<std::mutex> lock(_system->mutex());
           std::cout << _id << ": " << _current_floor << std::endl;
           lock.unlock();

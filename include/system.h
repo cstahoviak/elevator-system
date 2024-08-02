@@ -54,7 +54,7 @@ class ElevatorSystem
     // Store a Floors instance
     const Floors _floors;
 
-    // Mutex used for thread-safe console logging
+    // Mutex (MUTual EXclusion) used for thread-safe console logging
     std::mutex _mutex;
 
     void _parse_message_queue();
