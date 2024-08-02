@@ -72,7 +72,7 @@ class Elevator
     // Store a non-owning reference to the system
     ElevatorSystem* _system;
 
-        // How long (in ms) it takes an elevator to traverse a single floor.
+    // How long (in ms) it takes an elevator to traverse a single floor.
     std::chrono::milliseconds _floor_traverse_time_ms{1000};
 
     void _update_status();
