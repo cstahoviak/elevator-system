@@ -48,6 +48,7 @@ TEST_F(UserMessageTest, TestAddMessage) {
   std::string user_input1{"add E1"};
   std::string user_input2{"add E1 100"};
 
+  // Create the user messages
   UserMessage msg1{user_input1, &system};
   UserMessage msg2{user_input2, &system};
 
@@ -60,6 +61,7 @@ TEST_F(UserMessageTest, TestStatusMessage) {
   std::string user_input1{"status E0"};
   std::string user_input2{"add E1"};
 
+  // Create the user messages
   UserMessage msg1{user_input1, &system};
   UserMessage msg2{user_input2, &system};
 
@@ -73,9 +75,10 @@ TEST_F(UserMessageTest, TestCallMessage) {
   std::string user_input1{"call E0 P"};
   // Call existing elevator E0 to an invalid floor
   std::string user_input2{"call E0 4"};
-  // Call non-existent elevator E0 to a valid floor
+  // Call non-existent elevator E1 to a valid floor
   std::string user_input3{"call E1 1"};
 
+  // Create the user messages
   UserMessage msg1{user_input1, &system};
   UserMessage msg2{user_input2, &system};
   UserMessage msg3{user_input3, &system};
@@ -84,4 +87,30 @@ TEST_F(UserMessageTest, TestCallMessage) {
   EXPECT_TRUE(msg1.is_valid());
   EXPECT_FALSE(msg2.is_valid());
   EXPECT_FALSE(msg3.is_valid());
+}
+
+TEST_F(UserMessageTest, TestCreateStatusCommand) {
+  std::string user_input{"status E0"};
+
+  // Create the user message
+  UserMessage msg{user_input, &system};
+  ASSERT_TRUE(msg.is_valid());
+
+  // Create the command from the message
+  std::unique_ptr<ElevatorCommand> cmd = 
+    msg.create_command(&system._elevators.at(msg.eid()));
+  EXPECT_EQ(cmd.get()->_type, ElevatorCommandType::STATUS);
+}
+
+TEST_F(UserMessageTest, TestCreateCallCommand) {
+  std::string user_input{"call E0"};
+
+  // Create the user message
+  UserMessage msg{user_input, &system};
+  ASSERT_TRUE(msg.is_valid());
+
+  // Create the command from the message
+  std::unique_ptr<ElevatorCommand> cmd = 
+    msg.create_command(&system._elevators.at(msg.eid()));
+  EXPECT_EQ(cmd.get()->_type, ElevatorCommandType::CALL);
 }
