@@ -99,3 +99,62 @@ status E1 -> stationary B1
 
 ### Detailed Example 5: Bonus
 TODo: Add support for people getting in/out of the elevators and requesting floors.
+
+## Building & Running the `elevator_system` Application
+
+Clone the `elevator-system` repository locally.
+  ```
+  git clone https://github.com/cstahoviak/elevator-system.git
+  ```
+
+Build the `elevator_system application.
+  ```
+  cd elevator-system
+  mkdir build
+  cd build
+  cmake ..
+  make
+  ```
+
+Finally, run the `elevator_system` executable.
+  ```
+  ./elevator_system
+  ```
+
+The following instructions will be printed to the terminal, and the application will wait for user input to begin.
+
+  ```
+  The Elevator System Application.
+
+  Valid commands are:
+    add <elevator-id> <max-weight-kgs>
+    status <elevator-id>
+    call <elevator-id> <floor>
+    continue
+
+  Note that one or more 'add' commands must first be followed by a
+  'continue' command before 'status' or 'call' commands can be issued
+  for the added elevator(s).
+
+  The Elevator System will accept messages from the user until a
+  'continue' message is received. Once a 'continue' message is
+  received, the Elevator System will dispatch all user messages to the
+  corresponding elevator for each command to be executed.
+
+  Example:
+    add E1 125
+    continue
+    status E1
+    call E1 1
+    call E1 P
+    status E1
+    status E2 (expect to fail)
+    continue
+
+  Note that commands given to the system may not execute in the order
+  in which they're received. Commands are routed to each elevator, and
+  dispatch of those commands is handled asynchronously.
+
+  User Input: 
+  ```
+
