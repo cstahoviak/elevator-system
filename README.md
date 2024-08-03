@@ -107,7 +107,7 @@ Clone the `elevator-system` repository locally.
   git clone https://github.com/cstahoviak/elevator-system.git
   ```
 
-Build the `elevator_system application.
+Build the `elevator_system` application.
   ```
   cd elevator-system
   mkdir build
